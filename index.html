@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Carb Cruncher</title> <style> * { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #FFF9F1;
+  color: #333333;
+}
+
+.app {
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 28px 20px;
+}
+
+.logo {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 42px;
+}
+
+.logo h1 {
+  margin: 0;
+  font-size: 34px;
+  color: #D86B3D;
+  letter-spacing: -1px;
+}
+
+.logo p {
+  margin: 10px 0 0;
+  font-size: 16px;
+  color: #666666;
+}
+
+.actions {
+  display: grid;
+  gap: 16px;
+}
+
+.action {
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 22px;
+  text-align: left;
+  background: #FFFFFF;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+  cursor: pointer;
+}
+
+.action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(0,0,0,0.10);
+}
+
+.icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.action-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.action-description {
+  font-size: 14px;
+  color: #777777;
+}
+
+.secondary {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid #E7DED2;
+  display: flex;
+  justify-content: space-between;
+}
+
+.secondary button {
+  border: none;
+  background: transparent;
+  color: #555555;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 10px;
+}
+
+</style> </head>
+
+<body> <main class="app">
+
+<section class="logo">
+  <h1>Carb Cruncher</h1>
+  <p>Food doesn't have to be complicated.</p>
+</section>
+
+<section class="actions">
+
+  <button class="action">
+    <div class="icon">🔎</div>
+    <div class="action-title">Quick Look Up</div>
+    <div class="action-description">What are the carbs?</div>
+  </button>
+
+  <button class="action">
+    <div class="icon">🍽️</div>
+    <div class="action-title">Build a Meal</div>
+    <div class="action-description">Figure out my meal.</div>
+  </button>
+
+  <button class="action">
+    <div class="icon">💡</div>
+    <div class="action-title">What Can I Make?</div>
+    <div class="action-description">Give me some ideas.</div>
+  </button>
+
+</section>
+
+<nav class="secondary">
+  <button>📖 Learn</button>
+  <button>❤️ My Crunchy</button>
+  <button>⚙️ Settings</button>
+</nav>
+
+</main> </body> </html>
