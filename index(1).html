@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Carb Cruncher</title>
+
+
+    <!-- ========================================
+         GOOGLE FONTS
+    ======================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@500;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <style>
+
+
+        /* ========================================
+           RESET
+        ======================================== */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        /* ========================================
+           COLORS & FONTS
+        ======================================== */
+
+        :root {
+
+            --darkest: #041421;
+
+            --dark: #042630;
+
+            --teal: #4C7273;
+
+            --light: #86B9B0;
+
+            --pale: #D0D6D6;
+
+
+            --font-hand: 'Caveat', cursive;
+
+            --font-body: 'Nunito', sans-serif;
+
+        }
+
+
+        /* ========================================
+           BODY
+        ======================================== */
+
+        body {
+
+            background: var(--pale);
+
+            color: var(--darkest);
+
+            font-family: var(--font-body);
+
+            min-height: 100vh;
+
+        }
+
+
+        /* ========================================
+           APP
+        ======================================== */
+
+        .app {
+
+            width: 100%;
+
+            max-width: 430px;
+
+            min-height: 100vh;
+
+            margin: 0 auto;
+
+            background: var(--pale);
+
+            padding-bottom: 100px;
+
+        }
+
+
+        /* ========================================
+           HEADER / LOGO
+        ======================================== */
+
+        header {
+
+            text-align: center;
+
+            padding: 15px 20px 5px;
+
+        }
+
+
+        .logo {
+
+            display: block;
+
+            width: 100%;
+
+            max-width: 390px;
+
+            height: 300px;
+
+            object-fit: contain;
+
+            margin: 0 auto;
+
+        }
+
+
+        /* ========================================
+           SEARCH AREA
+        ======================================== */
+
+        .search-area {
+
+            padding: 18px 20px 22px;
+
+        }
+
+
+        /* ========================================
+           SEARCH BAR
+        ======================================== */
+
+        .search {
+
+            height: 52px;
+
+            width: 100%;
+
+            background: var(--light);
+
+            border: 2px solid var(--teal);
+
+            border-radius: 28px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 0 17px;
+
+        }
+
+
+        /* Custom search icon */
+
+        .search-icon {
+
+            width: 24px;
+
+            height: 24px;
+
+            flex-shrink: 0;
+
+            display: block;
+
+            object-fit: contain;
+
+        }
+
+
+        /* Search input */
+
+        .search input {
+
+            width: 100%;
+
+            border: 0;
+
+            outline: 0;
+
+            background: transparent;
+
+            color: var(--darkest);
+
+            font-family: var(--font-body);
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+        }
+
+
+        .search input::placeholder {
+
+            color: var(--dark);
+
+            opacity: 0.8;
+
+        }
+
+
+        /* ========================================
+           MAIN CONTENT
+        ======================================== */
+
+        .content {
+
+            padding: 0 20px;
+
+        }
+
+
+        /* Main heading */
+
+        .headline {
+
+            font-family: var(--font-hand);
+
+            font-size: 29px;
+
+            line-height: 1;
+
+            color: var(--dark);
+
+            margin: 0 0 14px 5px;
+
+        }
+
+
+        /* ========================================
+           CARDS
+        ======================================== */
+
+        .card {
+
+            width: 100%;
+
+            min-height: 112px;
+
+            border-radius: 32px;
+
+            border: 2px solid var(--teal);
+
+            margin-bottom: 16px;
+
+            padding: 16px 18px 16px 22px;
+
+            display: flex;
+
+            align-items: center;
+
+            text-decoration: none;
+
+            box-shadow:
+                0 4px 10px rgba(4, 20, 33, 0.10);
+
+            overflow: hidden;
+
+        }
+
+
+        /* First card */
+
+        .card-primary {
+
+            background: var(--dark);
+
+            color: var(--pale);
+
+            border-color: var(--darkest);
+
+        }
+
+
+        /* Other cards */
+
+        .card-secondary {
+
+            background: var(--light);
+
+            color: var(--darkest);
+
+        }
+
+
+        /* ========================================
+           CARD TEXT
+        ======================================== */
+
+        .card-text {
+
+            flex: 1;
+
+            min-width: 0;
+
+            padding-right: 8px;
+
+        }
+
+
+        .card-title {
+
+            display: block;
+
+            font-family: var(--font-hand);
+
+            font-size: 30px;
+
+            font-weight: 700;
+
+            line-height: 1;
+
+            margin-bottom: 6px;
+
+        }
+
+
+        .card-description {
+
+            display: block;
+
+            font-size: 13px;
+
+            line-height: 1.3;
+
+            font-weight: 700;
+
+        }
+
+
+        .card-primary .card-description {
+
+            color: var(--light);
+
+        }
+
+
+        .card-secondary .card-description {
+
+            color: var(--dark);
+
+        }
+
+
+        /* ========================================
+           APPLE IMAGE
+        ======================================== */
+
+        .food-area {
+
+            width: 100px;
+
+            height: 90px;
+
+            flex: 0 0 100px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            margin-left: 5px;
+
+            overflow: visible;
+
+        }
+
+
+        .apple-image {
+
+            width: 250px;
+
+            height: auto;
+
+            max-width: none;
+
+            display: block;
+
+            object-fit: contain;
+
+            /*
+              Helps the white background
+              blend into the card.
+            */
+
+            mix-blend-mode: multiply;
+
+            transform: scale(3.2);
+
+            transform-origin: center center;
+
+        }
+
+
+        /* ========================================
+           BURGER IMAGE
+        ======================================== */
+
+        .burger-area {
+
+            width: 115px;
+
+            height: 95px;
+
+            flex: 0 0 115px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            margin-left: 5px;
+
+            overflow: visible;
+
+        }
+
+
+        .burger-image {
+
+            width: 270px;
+
+            height: auto;
+
+            max-width: none;
+
+            display: block;
+
+            object-fit: contain;
+
+            /*
+              Helps the white background
+              blend into the card.
+            */
+
+            mix-blend-mode: multiply;
+
+            transform: scale(3.2);
+
+            transform-origin: center center;
+
+        }
+
+
+        /* ========================================
+           IDEA IMAGE
+        ======================================== */
+
+        .idea-area {
+
+            width: 110px;
+
+            height: 95px;
+
+            flex: 0 0 110px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            margin-left: 5px;
+
+            overflow: visible;
+
+        }
+
+
+        .idea-image {
+
+            width: 250px;
+
+            height: auto;
+
+            max-width: none;
+
+            display: block;
+
+            object-fit: contain;
+
+            /*
+              Helps the white background
+              blend into the card.
+            */
+
+            mix-blend-mode: multiply;
+
+            transform: scale(2.8);
+
+            transform-origin: center center;
+
+        }
+
+
+        /* ========================================
+           BOTTOM NAVIGATION
+        ======================================== */
+
+        .bottom-nav {
+
+            position: fixed;
+
+            left: 50%;
+
+            bottom: 0;
+
+            transform: translateX(-50%);
+
+            width: 100%;
+
+            max-width: 430px;
+
+            height: 78px;
+
+            background: var(--light);
+
+            border-top: 2px solid var(--teal);
+
+            display: flex;
+
+            justify-content: space-around;
+
+            align-items: center;
+
+            padding: 0 20px;
+
+            box-shadow:
+                0 -4px 14px rgba(4, 20, 33, 0.12);
+
+        }
+
+
+        /* ========================================
+           NAVIGATION ITEMS
+        ======================================== */
+
+        .nav-item {
+
+            color: var(--teal);
+
+            text-decoration: none;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 3px;
+
+            width: 120px;
+
+            min-width: 0;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            text-align: center;
+
+        }
+
+
+        /* Active navigation item */
+
+        .nav-item.active {
+
+            color: var(--dark);
+
+        }
+
+
+        /* ========================================
+           NAVIGATION ICONS
+        ======================================== */
+
+        .nav-icon {
+
+            width: 30px;
+
+            height: 30px;
+
+            object-fit: contain;
+
+            display: block;
+
+        }
+
+
+        /* ========================================
+           SMALL PHONES
+        ======================================== */
+
+        @media (max-width: 380px) {
+
+
+            .logo {
+
+                height: 270px;
+
+            }
+
+
+            .card {
+
+                padding-left: 17px;
+
+                padding-right: 12px;
+
+            }
+
+
+            .card-title {
+
+                font-size: 27px;
+
+            }
+
+
+            .card-description {
+
+                font-size: 12px;
+
+            }
+
+
+            /* Apple */
+
+            .food-area {
+
+                width: 85px;
+
+                height: 80px;
+
+                flex-basis: 85px;
+
+            }
+
+
+            .apple-image {
+
+                width: 215px;
+
+            }
+
+
+            /* Burger */
+
+            .burger-area {
+
+                width: 100px;
+
+                height: 85px;
+
+                flex-basis: 100px;
+
+            }
+
+
+            .burger-image {
+
+                width: 230px;
+
+            }
+
+
+            /* Idea */
+
+            .idea-area {
+
+                width: 95px;
+
+                height: 85px;
+
+                flex-basis: 95px;
+
+            }
+
+
+            .idea-image {
+
+                width: 215px;
+
+            }
+
+
+            /* Navigation */
+
+            .bottom-nav {
+
+                padding: 0 10px;
+
+            }
+
+
+            .nav-item {
+
+                width: 100px;
+
+                font-size: 10px;
+
+            }
+
+
+            .nav-icon {
+
+                width: 27px;
+
+                height: 27px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <main class="app">
+
+
+        <!-- ========================================
+             HEADER
+        ======================================== -->
+
+        <header>
+
+            <img
+                class="logo"
+                src="./Carbs logo.png"
+                alt="Carb Cruncher"
+            >
+
+        </header>
+
+
+
+        <!-- ========================================
+             SEARCH
+        ======================================== -->
+
+        <section class="search-area">
+
+            <div class="search">
+
+
+                <!-- Custom Search Icon -->
+
+                <img
+                    src="./search icon.png"
+                    alt=""
+                    class="search-icon"
+                >
+
+
+                <!-- Search Box -->
+
+                <input
+                    type="text"
+                    placeholder="Search a food (e.g., Apple, Bread)..."
+                    aria-label="Search for a food"
+                >
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ========================================
+             MAIN CONTENT
+        ======================================== -->
+
+        <section class="content">
+
+
+            <!-- Heading -->
+
+            <h2 class="headline">
+
+                What would you like to do?
+
+            </h2>
+
+
+
+            <!-- ====================================
+                 QUICK LOOK UP
+            ==================================== -->
+
+            <a
+                href="#"
+                class="card card-primary"
+            >
+
+
+                <div class="card-text">
+
+
+                    <span class="card-title">
+
+                        Quick Look Up
+
+                    </span>
+
+
+                    <span class="card-description">
+
+                        Check carb counts for individual foods instantly.
+
+                    </span>
+
+
+                </div>
+
+
+
+                <!-- Apple -->
+
+                <div class="food-area">
+
+                    <img
+                        src="./apple.png"
+                        alt="Hand-drawn apple"
+                        class="apple-image"
+                    >
+
+                </div>
+
+
+            </a>
+
+
+
+            <!-- ====================================
+                 BUILD A MEAL
+            ==================================== -->
+
+            <a
+                href="#"
+                class="card card-secondary"
+            >
+
+
+                <div class="card-text">
+
+
+                    <span class="card-title">
+
+                        Build a Meal
+
+                    </span>
+
+
+                    <span class="card-description">
+
+                        Add items together to calculate total meal carbs.
+
+                    </span>
+
+
+                </div>
+
+
+
+                <!-- Burger -->
+
+                <div class="burger-area">
+
+                    <img
+                        src="./burger.png"
+                        alt="Hand-drawn burger"
+                        class="burger-image"
+                    >
+
+                </div>
+
+
+            </a>
+
+
+
+            <!-- ====================================
+                 WHAT CAN I MAKE
+            ==================================== -->
+
+            <a
+                href="#"
+                class="card card-secondary"
+            >
+
+
+                <div class="card-text">
+
+
+                    <span class="card-title">
+
+                        What Can I Make?
+
+                    </span>
+
+
+                    <span class="card-description">
+
+                        Discover meal ideas based on carb limits.
+
+                    </span>
+
+
+                </div>
+
+
+
+                <!-- Idea -->
+
+                <div class="idea-area">
+
+                    <img
+                        src="./Idea.png"
+                        alt="What can I make"
+                        class="idea-image"
+                    >
+
+                </div>
+
+
+            </a>
+
+
+        </section>
+
+
+
+        <!-- ========================================
+             BOTTOM NAVIGATION
+        ======================================== -->
+
+        <nav class="bottom-nav">
+
+
+            <!-- ====================================
+                 MY CARB CRUNCHER
+            ==================================== -->
+
+            <a
+                href="#"
+                class="nav-item active"
+            >
+
+
+                <img
+                    src="./saved recipes.png"
+                    alt=""
+                    class="nav-icon"
+                >
+
+
+                <span>
+
+                    My Carb Cruncher
+
+                </span>
+
+
+            </a>
+
+
+
+            <!-- ====================================
+                 LEARNING
+            ==================================== -->
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+
+
+                <img
+                    src="./Idea.png"
+                    alt=""
+                    class="nav-icon"
+                >
+
+
+                <span>
+
+                    Learning
+
+                </span>
+
+
+            </a>
+
+
+
+            <!-- ====================================
+                 SETTINGS
+            ==================================== -->
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+
+
+                <img
+                    src="./settings icon.png"
+                    alt=""
+                    class="nav-icon"
+                >
+
+
+                <span>
+
+                    Settings
+
+                </span>
+
+
+            </a>
+
+
+        </nav>
+
+
+    </main>
+
+
+</body>
+
+</html>
