@@ -1,6 +1,6 @@
 const CACHE_NAME = "carb-cruncher-app-v1";
 const APP_SHELL = [
-  "./index%20copy.html",
+  "./index.html",
   "./app.webmanifest",
   "./app-icon-192.png",
   "./app-icon-512.png",
