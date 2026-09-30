@@ -1,10 +1,10 @@
 {
-  "id": "./index%20copy.html",
+"id": "./",
   "name": "Carb Cruncher",
   "short_name": "Carb Cruncher",
   "description": "A friendly carb counting and meal planning companion.",
   "lang": "en",
-  "start_url": "./index%20copy.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
