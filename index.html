@@ -1255,10 +1255,51 @@
 <section class="content">
 
     <h2 class="headline">
-        Let Us Crunch the Carbs For You!
+        Let Us Crunch the Numbers For You!
     </h2>
 
+<!-- HOME SEARCH -->
 
+<div class="home-search">
+
+    <div style="
+        background: #FFFDF7;
+        border: 2px solid #B8C9A5;
+        border-radius: 28px;
+        padding: 5px 16px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    ">
+
+        <span style="
+            font-size: 22px;
+            margin-right: 8px;
+        ">
+            🔎
+        </span>
+
+        <input
+            id="homeFoodSearch"
+            type="text"
+            placeholder="Search for a food..."
+            style="
+                width: 100%;
+                border: none;
+                outline: none;
+                font-size: 16px;
+                padding: 12px 0;
+                color: #263025;
+                font-family: Nunito, sans-serif;
+                background: transparent;
+            "
+        >
+
+    </div>
+
+    <div id="homeFoodResults"></div>
+
+</div>
     <!-- QUICK LOOK UP -->
 
  <a
@@ -2953,8 +2994,7 @@ function getFoodServings(food) {
 
 function openQuickLookup() {
 
-    showScreen(
-        "Quick Look Up",
+       "Quick Look Up",
         `
 
             <p style="
@@ -2966,7 +3006,8 @@ function openQuickLookup() {
                 Search an individual food.
             </p>
 
-
+  showScreen(
+   
             ${createSearch()}
             <p style="color:#687064;margin:-8px 0 16px;font-size:14px;line-height:1.5;">
                 Generic amounts are estimates; check package labels when available.
