@@ -1479,7 +1479,24 @@ onclick="openQuickLookup(); return false;"
 /* =========================================================
    BUILT-IN FOODS
 ========================================================= */
+/* =========================================================
+   COMMON SEARCH MISSPELLINGS
+========================================================= */
 
+const commonMisspellings = {
+    "bananna": "Banana",
+    "bananas": "Banana",
+    "chiken": "Chicken",
+    "chickn": "Chicken",
+    "tomatos": "Tomatoes",
+    "potatos": "Potatoes",
+    "brocolli": "Broccoli",
+    "brocoli": "Broccoli",
+    "strawbery": "Strawberries",
+    "strawberies": "Strawberries",
+    "avacado": "Avocado",
+    "avacadoes": "Avocados"
+};
 // carbsPerOunce values are approximate conversions from the app's existing portions.
 const foods = [
 
@@ -2322,8 +2339,7 @@ function createSearch(value = "") {
 /* =========================================================
    QUICK LOOK UP
 ========================================================= */
-
-function openQuickLookup() {
+function openQuickLookup(selectedFood = "") {
 
     showScreen(
         "Quick Look Up",
@@ -2376,8 +2392,19 @@ function openQuickLookup() {
             }
         );
 
-    }
 
+        if (selectedFood) {
+
+            search.value = selectedFood;
+
+            renderFoodResults(selectedFood);
+
+        }
+
+
+        search.focus();
+
+    }
 
 }
 
@@ -2453,7 +2480,8 @@ function renderFoodResults(query) {
     if (!container) return;
 
     const search =
-        query.trim().toLowerCase();
+  commonMisspellings[query.trim().toLowerCase()] ||
+    query.trim().toLowerCase();
 
     const matches =
         foods.filter(food =>
@@ -2606,6 +2634,7 @@ function renderFoodResults(query) {
 
                             <button
                                 type="button"
+                                onclick="openQuickLookup()"
                                 onclick="changeLookupQuantity('${escapeQuotes(food.name)}', 1)"
                                 style="
                                     width: 40px;
@@ -2992,61 +3021,6 @@ function getFoodServings(food) {
    QUICK LOOK UP SCREEN
 ========================================================= */
 
-function openQuickLookup() {
-
-       "Quick Look Up",
-        `
-
-            <p style="
-                color: #687064;
-                margin-bottom: 18px;
-                font-weight: 700;
-                line-height: 1.5;
-            ">
-                Search an individual food.
-            </p>
-
-  showScreen(
-   
-            ${createSearch()}
-            <p style="color:#687064;margin:-8px 0 16px;font-size:14px;line-height:1.5;">
-                Generic amounts are estimates; check package labels when available.
-            </p>
-            <div id="foodResults"></div>
-
-
-        `
-    );
-
-
-    const search =
-        document.getElementById("foodSearch");
-
-
-    if (search) {
-
-        search.addEventListener(
-            "input",
-            function () {
-
-                renderFoodResults(
-                    this.value
-                );
-
-            }
-        );
-
-        /*
-           Automatically put the cursor in the search box.
-        */
-        search.focus();
-
-    }
-
-
-    renderFoodResults("");
-
-}
 
 
 /* =========================================================
@@ -6053,7 +6027,110 @@ function setActiveNav(index) {
 /* =========================================================
    HOME CARD EVENTS
 ========================================================= */
+/* =========================================================
+   HOME SEARCH
+========================================================= */
 
+document.addEventListener(
+    "input",
+    function (event) {
+
+        if (event.target.id !== "homeFoodSearch") {
+            return;
+        }
+
+        const rawQuery =
+    event.target.value.trim().toLowerCase();
+
+const query =
+    (commonMisspellings[rawQuery] || rawQuery).toLowerCase();
+
+        const results =
+            document.getElementById("homeFoodResults");
+
+        if (!results) return;
+
+        if (!query) {
+            results.innerHTML = "";
+            return;
+        }
+
+        const matches =
+            foods.filter(food =>
+                food.name
+                    .toLowerCase()
+                    .includes(query)
+            );
+
+        if (!matches.length) {
+
+            results.innerHTML = `
+                <p style="
+                    color: #687064;
+                    font-weight: 700;
+                    margin: 10px 4px 18px;
+                ">
+                    We couldn't find that food yet. Try another name.
+                </p>
+            `;
+
+            return;
+        }
+
+        results.innerHTML = matches
+            .slice(0, 8)
+            .map(food => `
+                <button
+                    type="button"
+                    style="
+                        display: block;
+                        width: 100%;
+                        text-align: left;
+                        background: #FFFDF7;
+                        border: 1px solid #D9E1D1;
+                        border-radius: 14px;
+                        padding: 12px 14px;
+                        margin-bottom: 8px;
+                        color: #263025;
+                        font-family: Nunito, sans-serif;
+                        font-size: 16px;
+                        font-weight: 700;
+                        cursor: pointer;
+                    "
+                    data-food-name="${food.name.replace(/"/g, '&quot;')}"
+                >
+                    ${food.name}
+                </button>
+            `)
+            .join("");
+
+    }
+);
+
+
+
+/* HOME SEARCH RESULT CLICK */
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const button =
+            event.target.closest(
+                "#homeFoodResults button"
+            );
+
+        if (!button) {
+            return;
+        }
+console.log("HOME FOOD CLICKED:", button);
+        const selectedFood =
+            button.getAttribute("data-food-name");
+console.log("OPENING QUICK LOOKUP:", selectedFood);
+        openQuickLookup(selectedFood);
+
+    }
+);
 const cards =
     document.querySelectorAll(".content .card");
 
