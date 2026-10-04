@@ -4151,6 +4151,118 @@ function openBuildMeal(clearExisting = true) {
             <div id="mealTotal"></div>
             <div id="mealList"></div>
             <div id="mealActions"></div>
+                <div id="currentMealRecipeCard" style="background:#E4EBDD;border:2px solid #D9E1D1;border-radius:20px;padding:16px;margin:12px 0;">
+    <div style="font-family:Caveat,cursive;font-size:30px;color:#294A1D;margin-bottom:4px;">
+        Save This Meal
+    </div>
+
+    <p style="margin:0 0 12px;color:#687064;font-size:13px;line-height:1.5;">
+        Give this meal a name and save it to My Recipes so you can find it again later.
+    </p>
+
+    <label for="currentMealRecipeName" style="display:block;color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">
+        Meal name
+    </label>
+
+    <input
+        id="currentMealRecipeName"
+        type="text"
+        placeholder="Example: Chicken taco plate"
+        value="${escapeHTML(currentMealRecipeDraft.name || "")}"
+        oninput="currentMealRecipeDraft.name=this.value"
+        style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;background:white;color:#263025;font:inherit;margin-bottom:10px;"
+    >
+
+    <label for="currentMealRecipeServings" style="display:block;color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">
+        Servings
+    </label>
+
+    <input
+        id="currentMealRecipeServings"
+        type="number"
+        min="1"
+        step="1"
+        value="${Math.max(1, Number(currentMealRecipeDraft.servings) || 1)}"
+        oninput="currentMealRecipeDraft.servings=this.value"
+        style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;background:white;color:#263025;font:inherit;margin-bottom:10px;"
+    >
+
+    <label for="currentMealRecipePortion" style="display:block;color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">
+        Portion
+    </label>
+
+    <select
+        id="currentMealRecipePortion"
+        onchange="currentMealRecipeDraft.portion=this.value"
+        style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;background:white;color:#263025;font:inherit;margin-bottom:10px;"
+    >
+        <option value="plate" ${currentMealRecipeDraft.portion === "plate" ? "selected" : ""}>Plate</option>
+        <option value="bowl" ${currentMealRecipeDraft.portion === "bowl" ? "selected" : ""}>Bowl</option>
+        <option value="serving" ${currentMealRecipeDraft.portion === "serving" ? "selected" : ""}>Serving</option>
+    </select>
+
+    <label for="currentMealRecipeCategory" style="display:block;color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">
+        Category
+    </label>
+
+    <select
+        id="currentMealRecipeCategory"
+        onchange="currentMealRecipeDraft.category=this.value"
+        style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;background:white;color:#263025;font:inherit;margin-bottom:10px;"
+    >
+        ${recipeCategories.map(category => `<option value="${escapeHTML(category)}" ${currentMealRecipeDraft.category === category ? "selected" : ""}>${escapeHTML(category)}</option>`).join("")}
+    </select>
+
+    <label for="currentMealRecipePhoto" style="display:block;color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">
+        Add a picture (optional)
+    </label>
+
+    <input
+        id="currentMealRecipePhoto"
+        type="file"
+        accept="image/*"
+        onchange="saveCurrentMealRecipePicture(this.files[0])"
+        style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;margin-bottom:10px;"
+    >
+
+    <p
+        id="currentMealRecipePhotoStatus"
+        style="margin:-4px 0 10px;color:#687064;font-size:13px;"
+    ></p>
+<label
+    for="currentMealRecipeInstructions"
+    style="display:block;margin:12px 0 6px;color:#294A1D;font-weight:800;"
+>
+    Recipe instructions / notes
+</label>
+
+<textarea
+    id="currentMealRecipeInstructions"
+    rows="5"
+    placeholder="Add cooking instructions, notes, substitutions, or anything you want to remember about this recipe..."
+    style="width:100%;box-sizing:border-box;padding:12px;border:2px solid #D9E1D1;border-radius:12px;background:#FFFDF7;color:#263025;font:inherit;resize:vertical;"
+    oninput="currentMealRecipeDraft.instructions=this.value"
+></textarea>
+
+<p
+    style="margin:6px 0 10px;color:#687064;font-size:12px;"
+>
+    You can change these instructions later in My Recipes.
+</p>
+    <button
+        type="button"
+        onclick="saveCurrentMealAsRecipe()"
+        style="width:100%;padding:12px 16px;border:0;border-radius:12px;background:#3F6F2A;color:#FFFFFF;font:inherit;font-weight:800;cursor:pointer;"
+    >
+        Save to My Recipes
+    </button>
+
+    <p
+        id="currentMealRecipeStatus"
+        style="margin:10px 0 0;color:#294A1D;font-size:13px;font-weight:700;"
+    ></p>
+</div>
+</div>
             <button type="button" onclick="openMyCruncher(); setActiveNav(0);" style="display:block;width:100%;margin:22px 0 8px;padding:13px 16px;border:2px solid #3F6F2A;border-radius:16px;background:#FFFFFF;color:#294A1D;font:inherit;font-weight:800;cursor:pointer;">Go to My Recipes</button>
 
         `
@@ -4742,11 +4854,7 @@ function renderMeal() {
             </div>
 
         </div>
-        ${hasFoods ? `<div id="mealAverageCard" class="carb-total-panel" style="background:#24364B;color:#FFFFFF;border-radius:26px;padding:20px;margin-top:12px;text-align:center;"><div style="font-family:Caveat,cursive;font-size:34px;">Average Carbs Per Plate</div><div id="mealCarbsPerServing" aria-live="polite" style="font-size:38px;font-weight:800;line-height:1.2;">${formatCarbs(plateCarbs / mealServingCount)}g</div><p style="color:#F2F4EC;font-size:14px;line-height:1.5;margin:8px 0 14px;">Average carbs from foods on each plate. Drinks are included in Total Carbs above, but not in this plate estimate.</p><div style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;"><label for="mealServingCount" style="font-weight:800;">Divide food by people / plates:</label><input id="mealServingCount" type="number" min="0.25" max="100" step="0.25" value="${mealServingCount}" oninput="updateMealServingCount(this.value)" style="width:105px;padding:10px;border:2px solid #D9E1D1;border-radius:9px;background:#FFFDF7;color:#294A1D;font:inherit;font-weight:800;"></div></div>` : ""}
-        ${meal.length ? `<div id="currentMealRecipeCard" style="background:#FFFDF7;border:2px solid #D9E1D1;border-radius:20px;padding:17px;margin-top:12px;text-align:left;"><h3 style="color:#294A1D;margin:0 0 6px;">Save meal to My Recipes</h3><p style="color:#596454;font-size:14px;line-height:1.5;margin:0 0 12px;">Give this meal a name and category. Find and customize it later in My Carb Cruncher.</p><label for="currentMealRecipeName" style="display:block;color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">Recipe name</label><input id="currentMealRecipeName" type="text" value="${escapeHTML(currentMealRecipeDraft.name)}" placeholder="Example: Weeknight chicken dinner" oninput="updateCurrentMealRecipeDraft('name',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();saveCurrentMealAsRecipe()}" style="box-sizing:border-box;width:100%;padding:10px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;margin-bottom:10px;"><label for="currentMealRecipeCategory" style="display:block;color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">Meal category</label><select id="currentMealRecipeCategory" onchange="updateCurrentMealRecipeDraft('category',this.value)" style="width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;margin-bottom:10px;">${recipeCategoryOptions(currentMealRecipeDraft.category || "Dinner")}</select><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><label for="currentMealRecipeServings" style="color:#294A1D;font-size:13px;font-weight:800;">Batch makes about</label><input id="currentMealRecipeServings" type="number" min="1" max="100" step="1" value="${Math.max(1,Number(currentMealRecipeDraft.servings)||1)}" oninput="updateCurrentMealRecipeDraft('servings',this.value)" style="width:75px;padding:8px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><select id="currentMealRecipePortion" onchange="updateCurrentMealRecipeDraft('portion',this.value)" style="padding:8px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;">${["plate","bowl","serving"].map(option=>`<option value="${option}" ${currentMealRecipeDraft.portion===option?"selected":""}>${option}</option>`).join("")}</select></div><div id="currentMealRecipePreview" style="padding:10px;margin-top:10px;background:#E4EBDD;border-radius:10px;color:#294A1D;font-weight:800;">Batch total: ${formatCarbs(totalCarbs)}g · About ${formatCarbs(plateCarbs / Math.max(1,Number(currentMealRecipeDraft.servings)||1))}g per ${Math.max(1,Number(currentMealRecipeDraft.servings)||1)} ${escapeHTML(recipePortionLabel(currentMealRecipeDraft.portion,Math.max(1,Number(currentMealRecipeDraft.servings)||1)))}</div><button type="button" onclick="saveCurrentMealAsRecipe()" style="width:100%;border:0;background:#3F6F2A;color:white;border-radius:10px;padding:11px 14px;font-weight:800;margin-top:10px;cursor:pointer;">Save meal to My Recipes</button><p id="currentMealRecipeStatus" aria-live="polite" style="margin:8px 0 0;color:#3F6F2A;font-weight:800;">${escapeHTML(currentMealRecipeFeedback)}</p></div>` : ""}
-        ${appPreferences.diaryEnabled && meal.length ? `<div id="diaryMealCard" style="background:#FFFDF7;border:2px solid #D9E1D1;border-radius:18px;padding:15px;margin-top:12px;text-align:left;"><label for="diaryMealType" style="display:block;color:#294A1D;font-weight:800;margin-bottom:6px;">Add this meal to your food diary</label><div style="display:flex;gap:8px;flex-wrap:wrap;"><select id="diaryMealType" style="padding:10px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select><button type="button" onclick="recordMealToDiary()" style="border:0;background:#3F6F2A;color:white;border-radius:10px;padding:10px 13px;font-weight:800;">Save meal to diary</button></div><p id="diarySaveStatus" aria-live="polite" style="margin:8px 0 0;color:#596454;font-size:14px;"></p></div>` : ""}
-
-    `;
+        ${hasFoods ? `<div id="mealAverageCard" class="carb-total-panel" style="background:#24364B;color:#FFFFFF;border-radius:26px;padding:20px;margin-top:12px;text-align:center;"><div style="font-family:Caveat,cursive;font-size:34px;">Average Carbs Per Plate</div><div id="mealCarbsPerServing" aria-live="polite" style="font-size:38px;font-weight:800;line-height:1.2;">${formatCarbs(plateCarbs / mealServingCount)}g</div><p style="color:#F2F4EC;font-size:14px;line-height:1.5;margin:8px 0 14px;">Average carbs from foods on each plate. Drinks are included in Total Carbs above, but not in this plate estimate.</p><div style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;"><label for="mealServingCount" style="font-weight:800;">Divide food by people / plates:</label><input id="mealServingCount" type="number" min="0.25" max="100" step="0.25" value="${mealServingCount}" oninput="updateMealServingCount(this.value)" style="width:105px;padding:10px;border:2px solid #D9E1D1;border-radius:9px;background:#FFFDF7;color:#294A1D;font:inherit;font-weight:800;"></div></div>` : ""}`;
 
     const averageCard = document.getElementById("mealAverageCard");
     if (averageCard && hasFoods) {
@@ -4754,47 +4862,129 @@ function renderMeal() {
         list.insertBefore(averageCard, drinksHeading || null);
     }
     const actions = document.getElementById("mealActions");
-    if (actions) {
-        actions.innerHTML = "";
-        ["currentMealRecipeCard", "diaryMealCard"].forEach(id => {
-            const card = document.getElementById(id);
-            if (card) actions.appendChild(card);
-        });
-    }
-
+if (actions) {
+    const diaryCard = document.getElementById("diaryMealCard");
+    if (diaryCard) actions.appendChild(diaryCard);
 }
-
+}
 function updateMealServingCount(value) {
-    const count=Number(value);
-    if (!Number.isFinite(count) || count<0.25 || count>100) return;
-    mealServingCount=count;
-    localStorage.setItem("carbCruncherMealServingCount",String(count));
-    const total=meal.reduce((sum,item)=>sum+(isDrinkMealItem(item)?0:Number(item.carbsPerServing ?? item.carbs ?? 0)*Number(item.quantity || 1)),0);
-    const result=document.getElementById("mealCarbsPerServing");
-    if (result) result.textContent=`${formatCarbs(total/count)}g`;
+
+    const count = Number(value);
+
+    if (!Number.isFinite(count) || count < 0.25 || count > 100) return;
+
+    mealServingCount = count;
+
+    localStorage.setItem("carbCruncherMealServingCount", String(count));
+
+    const total = meal.reduce(
+        (sum, item) =>
+            sum +
+            (isDrinkMealItem(item)
+                ? 0
+                : Number(item.carbsPerServing ?? item.carbs ?? 0) *
+                  Number(item.quantity || 1)),
+        0
+    );
+
+    const result = document.getElementById("mealCarbsPerServing");
+
+    if (result) result.textContent = `${formatCarbs(total / count)}g`;
 }
 
 function recordMealToDiary() {
+
     if (!appPreferences.diaryEnabled || !meal.length) return;
-    const mealType = document.getElementById("diaryMealType")?.value || "Meal";
-    const entries = meal.map(item => ({food:item.name, portion:`${Number(item.quantity || 1)} × ${item.servingLabel || "serving"}`, carbs:Number(item.carbsPerServing ?? item.carbs ?? 0)*Number(item.quantity || 1)}));
-    const totalCarbs = entries.reduce((sum,item)=>sum+item.carbs,0);
-    foodDiaryEntries.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,date:new Date().toISOString(),mealType,items:entries,totalCarbs});
-    localStorage.setItem("carbCruncherDiary",JSON.stringify(foodDiaryEntries));
+
+    const mealType =
+        document.getElementById("diaryMealType")?.value || "Meal";
+
+    const entries = meal.map(item => ({
+        food: item.name,
+        portion: `${Number(item.quantity || 1)} × ${item.servingLabel || "serving"}`,
+        carbs:
+            Number(item.carbsPerServing ?? item.carbs ?? 0) *
+            Number(item.quantity || 1)
+    }));
+
+    const totalCarbs = entries.reduce(
+        (sum, item) => sum + item.carbs,
+        0
+    );
+
+    foodDiaryEntries.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        date: new Date().toISOString(),
+        mealType,
+        items: entries,
+        totalCarbs
+    });
+
+    localStorage.setItem(
+        "carbCruncherDiary",
+        JSON.stringify(foodDiaryEntries)
+    );
+
     const status = document.getElementById("diarySaveStatus");
-    if (status) status.textContent = "Saved on this device. You can review or export it in My Carb Cruncher.";
-}
-function exportFoodDiary() {
-    const rows = [["Date and time","Meal","Food","Portion","Estimated carbs (g)"]];
-    foodDiaryEntries.forEach(entry => entry.items.forEach(item=>rows.push([new Date(entry.date).toLocaleString(),entry.mealType,item.food,item.portion,formatCarbs(item.carbs)])));
-    const csv = rows.map(row=>row.map(value=>`"${String(value ?? "").replaceAll('"','""')}"`).join(",")).join("\r\n");
-    const link=document.createElement("a"); link.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})); link.download="carb-cruncher-food-diary.csv"; link.click(); URL.revokeObjectURL(link.href);
-}
-function clearFoodDiary() {
-    if (!confirm("Clear all food diary entries saved on this device?")) return;
-    foodDiaryEntries=[]; localStorage.setItem("carbCruncherDiary",JSON.stringify(foodDiaryEntries)); openMyCruncher();
+
+    if (status) {
+        status.textContent =
+            "Saved on this device. You can review or export it in My Carb Cruncher.";
+    }
 }
 
+function exportFoodDiary() {
+
+    const rows = [
+        ["Date and time", "Meal", "Food", "Portion", "Estimated carbs (g)"]
+    ];
+
+    foodDiaryEntries.forEach(entry =>
+        entry.items.forEach(item =>
+            rows.push([
+                new Date(entry.date).toLocaleString(),
+                entry.mealType,
+                item.food,
+                item.portion,
+                formatCarbs(item.carbs)
+            ])
+        )
+    );
+
+    const csv = rows
+        .map(row =>
+            row
+                .map(value => `"${String(value ?? "").replaceAll('"', '""')}"`)
+                .join(",")
+        )
+        .join("\r\n");
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(
+        new Blob([csv], { type: "text/csv;charset=utf-8" })
+    );
+
+    link.download = "carb-cruncher-food-diary.csv";
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+}
+
+function clearFoodDiary() {
+
+    if (!confirm("Clear all food diary entries saved on this device?")) return;
+
+    foodDiaryEntries = [];
+
+    localStorage.setItem(
+        "carbCruncherDiary",
+        JSON.stringify(foodDiaryEntries)
+    );
+
+    openMyCruncher();
+}
 
 /* =========================================================
    CHANGE MEAL SERVING
@@ -4988,13 +5178,23 @@ function getIdeaCarbsPerOunce(food) {
 }
 function mealIdeaNutrition(idea, index) {
     const ingredients = Number.isInteger(index) ? getMealIdeaIngredients(index) : idea.ingredients;
+
     return ingredients.reduce((sum, item) => {
+        // Custom ingredient: carbs are stored directly on the recipe ingredient
+        if (item?.custom === true) {
+            const quantity = Number(item.quantity) > 0 ? Number(item.quantity) : 1;
+            const carbs = Number(item.carbsPerServing);
+            return sum + (Number.isFinite(carbs) ? carbs * quantity : 0);
+        }
+
         const food = foods.find(entry => entry.name === item.food);
         const quantity = Number(item.quantity) > 0 ? Number(item.quantity) : 1;
+
         if (food && Number.isFinite(Number(item.ounces)) && item.ounces !== "") {
             const perOunce = getIdeaCarbsPerOunce(food);
             if (perOunce !== null) return sum + perOunce * Number(item.ounces) * quantity;
         }
+
         const serving = food && getFoodServings(food).find(entry => entry.label === item.label);
         return sum + Number(serving ? serving.carbs : food?.carbs || 0) * quantity;
     }, 0);
@@ -5011,6 +5211,7 @@ function updateCurrentMealRecipeDraft(field, value) {
     currentMealRecipeDraft[field] = value;
     currentMealRecipeFeedback = "";
     updateCurrentMealRecipePreview();
+
     const status = document.getElementById("currentMealRecipeStatus");
     if (status) status.textContent = "";
 }
@@ -5024,6 +5225,135 @@ function updateCurrentMealRecipePreview() {
     const plate = mealIdeaPlateNutrition({ingredients:mealIngredients});
     preview.textContent = `Batch total: ${formatCarbs(total)}g · About ${formatCarbs(plate/count)}g per ${count} ${recipePortionLabel(currentMealRecipeDraft.portion,count)}${name ? ` · “${name}”` : ""}`;
 }
+function saveCurrentMealAsMealIdea() {
+    if (!meal.length) return;
+
+    const name = String(
+        document.getElementById("currentMealRecipeName")?.value ??
+        currentMealRecipeDraft.name ??
+        ""
+    ).trim();
+
+    if (!name) {
+        const nameField = document.getElementById("currentMealRecipeName");
+        if (nameField) {
+            nameField.setCustomValidity("Enter a name for this meal idea.");
+            nameField.reportValidity();
+        }
+        return;
+    }
+
+    const servings = Math.max(
+        1,
+        Number(
+            document.getElementById("currentMealRecipeServings")?.value ||
+            currentMealRecipeDraft.servings
+        ) || 1
+    );
+
+    const portion = String(
+        document.getElementById("currentMealRecipePortion")?.value ||
+        currentMealRecipeDraft.portion ||
+        "plate"
+    );
+
+    const category = String(
+        document.getElementById("currentMealRecipeCategory")?.value ||
+        currentMealRecipeDraft.category ||
+        "Dinner"
+    );
+
+    const ingredients = meal.map(item => ({
+        food: item.name,
+        label: item.servingLabel,
+        quantity: Number(item.quantity || 1),
+        isDrink: isDrinkMealItem(item)
+    }));
+
+    const totalCarbs = mealIdeaNutrition({ ingredients });
+    const plateCarbs = mealIdeaPlateNutrition({ ingredients });
+
+    let mealIdeasLocal = [];
+
+    try {
+        mealIdeasLocal = JSON.parse(
+            localStorage.getItem("carbCruncherMealIdeas") || "[]"
+        );
+
+        if (!Array.isArray(mealIdeasLocal)) {
+            mealIdeasLocal = [];
+        }
+    } catch (error) {
+        mealIdeasLocal = [];
+    }
+
+    mealIdeasLocal.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+        name,
+        ingredients,
+        totalCarbs,
+        plateCarbs,
+        servings,
+        portion,
+        category,
+        photoData: currentMealRecipeDraft.photoData || "",
+        createdAt: new Date().toISOString()
+    });
+
+    localStorage.setItem(
+        "carbCruncherMealIdeas",
+        JSON.stringify(mealIdeasLocal)
+    );
+
+    const status = document.getElementById("currentMealIdeaStatus");
+
+    if (status) {
+        status.textContent = `Saved “${name}” as a Meal Idea on this device.`;
+    }
+}
+function saveCurrentMealRecipePicture(file) {
+    if (!file) return;
+
+    const status = document.getElementById("currentMealRecipePhotoStatus");
+    if (status) status.textContent = "Preparing picture…";
+
+    const reader = new FileReader();
+
+    reader.onerror = () => {
+        if (status) status.textContent = "Could not read that picture. Please choose it again.";
+    };
+
+    reader.onload = () => {
+        const image = new Image();
+
+        image.onerror = () => {
+            if (status) status.textContent = "That file could not be opened as a picture.";
+        };
+
+        image.onload = () => {
+            const maxSide = 720;
+            const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+
+            const context = canvas.getContext("2d");
+            context.fillStyle = "#FFFDF7";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            currentMealRecipeDraft.photoData =
+                canvas.toDataURL("image/jpeg", 0.78);
+
+            if (status) status.textContent = "Picture ready to save with this recipe.";
+        };
+
+        image.src = String(reader.result || "");
+    };
+
+    reader.readAsDataURL(file);
+}
 function saveCurrentMealAsRecipe() {
     if (!meal.length) return;
     const name = String(document.getElementById("currentMealRecipeName")?.value ?? currentMealRecipeDraft.name ?? "").trim();
@@ -5036,23 +5366,96 @@ function saveCurrentMealAsRecipe() {
     const servings = Math.max(1, Number(document.getElementById("currentMealRecipeServings")?.value || currentMealRecipeDraft.servings) || 1);
     const portion = String(document.getElementById("currentMealRecipePortion")?.value || currentMealRecipeDraft.portion || "plate");
     const category = String(document.getElementById("currentMealRecipeCategory")?.value || currentMealRecipeDraft.category || "Dinner");
-    const ingredients = meal.map(item => ({food:item.name,label:item.servingLabel,quantity:Number(item.quantity || 1),isDrink:isDrinkMealItem(item)}));
+   const instructions = String(
+    document.getElementById("currentMealRecipeInstructions")?.value
+    ?? currentMealRecipeDraft.instructions
+    ?? ""
+).trim(); const ingredients = meal.map(item => ({food:item.name,label:item.servingLabel,quantity:Number(item.quantity || 1),isDrink:isDrinkMealItem(item)}));
     const totalCarbs = mealIdeaNutrition({ingredients});
     const plateCarbs = mealIdeaPlateNutrition({ingredients});
-    savedRecipes.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name,ingredients,totalCarbs,plateCarbs,servings,portion,category,createdAt:new Date().toISOString()});
-    localStorage.setItem("carbCruncherRecipes",JSON.stringify(savedRecipes));
+    savedRecipes.push
+    ({id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name,ingredients,totalCarbs,plateCarbs,servings,portion,category,instructions,photoData:currentMealRecipeDraft.photoData || "",createdAt:new Date().toISOString()});saveData();
     currentMealRecipeDraft = {name,servings,portion,category};
     currentMealRecipeFeedback = `Saved “${name}” to My Recipes.`;
     const status = document.getElementById("currentMealRecipeStatus");
     if (status) status.textContent = currentMealRecipeFeedback;
+}
+function saveSavedRecipePicture(id, file) {
+    if (!file) return;
+
+    const recipe = savedRecipes.find(item => String(item.id) === String(id));
+    if (!recipe) return;
+
+    savedRecipePhotoFeedback[id] = "Preparing picture…";
+
+    const reader = new FileReader();
+
+    reader.onerror = () => {
+        savedRecipePhotoFeedback[id] = "Could not read that picture. Please choose it again.";
+        openMyCruncher();
+    };
+
+    reader.onload = () => {
+        const image = new Image();
+
+        image.onerror = () => {
+            savedRecipePhotoFeedback[id] = "That file could not be opened as a picture.";
+            openMyCruncher();
+        };
+
+        image.onload = () => {
+            const maxSide = 720;
+            const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+
+            const context = canvas.getContext("2d");
+            context.fillStyle = "#FFFDF7";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            const previous = recipe.photoData;
+
+            recipe.photoData = canvas.toDataURL("image/jpeg", 0.78);
+
+            try {
+                localStorage.setItem(
+                    "carbCruncherRecipes",
+                    JSON.stringify(savedRecipes)
+                );
+
+                savedRecipePhotoFeedback[id] = "Picture saved on this device.";
+            } catch (error) {
+                recipe.photoData = previous;
+                savedRecipePhotoFeedback[id] =
+                    "This picture could not be saved because browser storage is full. Try a smaller picture.";
+            }
+
+            openMyCruncher();
+        };
+
+        image.src = String(reader.result || "");
+    };
+
+    reader.readAsDataURL(file);
 }
 function getMealIdeaTarget(idea) {
     const meal = String(idea.category || "").toLowerCase();
     if (["breakfast","lunch","dinner"].includes(meal)) return Number(mealTargets[meal] ?? carbGoal / 3);
     return ["breakfast","lunch","dinner"].reduce((sum,name)=>sum+Number(mealTargets[name] ?? carbGoal/3),0)/3;
 }
+let adjustingMealIdeaIndex = -1;
 function toggleMealIdea(index) {
     openMealIdeaIndex = openMealIdeaIndex === index ? -1 : index;
+    adjustingMealIdeaIndex = -1;
+    renderMealIdeaCards();
+}
+
+function toggleMealIdeaAdjust(index) {
+    adjustingMealIdeaIndex = adjustingMealIdeaIndex === index ? -1 : index;
+    openMealIdeaIndex = index;
     renderMealIdeaCards();
 }
 function recipePortionLabel(portion, count) {
@@ -5115,6 +5518,7 @@ function getSavedRecipeDraft(id) {
             servings: Math.max(1, Number(recipe.servings) || 1),
             portion: recipe.portion || "plate",
             category: recipe.category || (Number.isInteger(recipe.autoIdeaIndex) ? mealIdeas[recipe.autoIdeaIndex]?.category : "Dinner") || "Dinner",
+           instructions: recipe.instructions || "",
             ingredients: (recipe.ingredients || []).map(item => ({...item}))
         };
     }
@@ -5151,9 +5555,13 @@ function updateSavedRecipeDraftIngredient(id, ingredientIndex, field, value) {
     if (!draft) return;
     const item = draft.ingredients[ingredientIndex];
     if (!item) return;
-    if (field === "food") {
-        const food = foods.find(entry => entry.name === value);
-        if (!food) return;
+  if (field === "food") {
+
+    if (item.custom === true) return;
+
+    const food = foods.find(entry => entry.name === value);
+
+    if (!food) return;
         const servings = getFoodServings(food);
         const defaultServing = servings.find(serving => /1\/4 lb package/i.test(serving.label)) || servings[0];
         draft.ingredients[ingredientIndex] = {food:food.name,label:defaultServing.label,quantity:Number(item.quantity || 1),isDrink:food.category === "Drinks",...(item.ounces !== undefined ? {ounces:item.ounces} : {})};
@@ -5190,6 +5598,46 @@ function addSavedRecipeIngredient(id) {
     draft.ingredients.push({food:food.name,label:serving.label,quantity:1,isDrink:food.category === "Drinks"});
     openMyCruncher();
 }
+function addCustomSavedRecipeIngredient(id) {
+    const nameInput = document.getElementById(`saved-recipe-custom-name-${id}`);
+    const servingInput = document.getElementById(`saved-recipe-custom-serving-${id}`);
+    const carbsInput = document.getElementById(`saved-recipe-custom-carbs-${id}`);
+
+    const name = String(nameInput?.value || "").trim();
+    const label = String(servingInput?.value || "").trim();
+    const carbs = Number(carbsInput?.value);
+
+    if (!name) {
+        nameInput?.setCustomValidity("Enter an ingredient name.");
+        nameInput?.reportValidity();
+        return;
+    }
+
+    if (!label) {
+        servingInput?.setCustomValidity("Enter the serving amount.");
+        servingInput?.reportValidity();
+        return;
+    }
+
+    if (!Number.isFinite(carbs) || carbs < 0) {
+        carbsInput?.setCustomValidity("Enter the carbs for this serving.");
+        carbsInput?.reportValidity();
+        return;
+    }
+
+    const draft = getSavedRecipeDraft(id);
+
+    draft.ingredients.push({
+        food: name,
+        label: label,
+        quantity: 1,
+        carbsPerServing: carbs,
+        custom: true,
+        isDrink: false
+    });
+
+    openMyCruncher();
+}
 function commitSavedRecipeDraft(id, asNew) {
     const key = String(id);
     const original = savedRecipes.find(item => String(item.id) === key);
@@ -5200,11 +5648,12 @@ function commitSavedRecipeDraft(id, asNew) {
     const servings = Math.max(1, Number(draft.servings) || 1);
     const portion = String(draft.portion || "plate").trim() || "plate";
     const category = recipeCategories.includes(draft.category) ? draft.category : "Dinner";
+   const instructions = String(draft.instructions || "").trim();
     const ingredients = draft.ingredients.map(item => ({...item}));
     const totalCarbs = mealIdeaNutrition({ingredients});
     const plateCarbs = mealIdeaPlateNutrition({ingredients});
     if (asNew) {
-        savedRecipes.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name,ingredients,totalCarbs,plateCarbs,servings,portion,category,photoData:original.photoData || "",createdAt:new Date().toISOString(),copiedFrom:key});
+        savedRecipes.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name,ingredients,totalCarbs,plateCarbs,servings,portion,category,instructions,photoData:original.photoData || "",createdAt:new Date().toISOString(),copiedFrom:key});
     } else {
         original.name=name;
         original.ingredients=ingredients;
@@ -5213,6 +5662,7 @@ function commitSavedRecipeDraft(id, asNew) {
         original.servings=servings;
         original.portion=portion;
         original.category=category;
+        original.instructions=instructions
     }
     localStorage.setItem("carbCruncherRecipes",JSON.stringify(savedRecipes));
     delete savedRecipeDrafts[key];
@@ -5358,7 +5808,7 @@ function renderMealIdeaCards() {
         return !ideaHasExcludedFood(idea) && (mealIdeaTargetFilter !== "within" || within) && (mealIdeaCategory === "All" || idea.category === mealIdeaCategory) && (mealIdeaCategory === "All" || !ideaPantry.length || idea.matches > 0 || idea.index === openMealIdeaIndex);
     }).sort((a,b)=>Number(b.total<=b.target)-Number(a.total<=a.target) || b.matches-a.matches || a.total-b.total);
     const ideaCards = available.map(idea => {
-        const editorOpen = openMealIdeaIndex === idea.index;
+       const editorOpen = adjustingMealIdeaIndex === idea.index;
         const editor = editorOpen ? `<div onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" style="margin-top:14px;border-top:1px solid #D9E1D1;padding-top:14px;">
             <h4 style="margin:0 0 4px;color:#294A1D;">Adjust this idea</h4><p style="margin:0 0 10px;color:#687064;font-size:12px;">Enter a custom weight in ounces when you know the package size, such as 10 oz.</p>
             ${idea.ingredients.length ? idea.ingredients.map((item,ingredientIndex)=>{
@@ -5389,10 +5839,39 @@ function renderMealIdeaCards() {
         </div>` : "";
         const cleanAmount = label => String(label || "").replace(/\s*\([^)]*\)/g, "").trim();
         const detailIngredients = idea.ingredients.map(item=>`${cleanAmount(item.label)} ${item.food}`.trim()).join(" · ");
+       const ideaExpanded = openMealIdeaIndex === idea.index;
         const detailsOpen = openIdeaDetailsIndex === idea.index;
         return {html:`<article class="idea-card" onclick="toggleMealIdea(${idea.index})" role="button" tabindex="0" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();toggleMealIdea(${idea.index})}" aria-expanded="${editorOpen}">
             <div class="idea-photo"><img src="${idea.image}" alt="${escapeHTML(idea.name)}" loading="lazy" onerror="this.style.display='none'"><button class="idea-details-toggle" type="button" aria-label="Show ingredients and photo credit" onclick="event.stopPropagation();toggleIdeaDetails(${idea.index})">i</button><div class="idea-hover-details ${detailsOpen?'show':''}" onclick="event.stopPropagation()"><p><strong>Ingredients and amounts</strong></p><p>${escapeHTML(detailIngredients)}</p><p><strong>Serving:</strong> about 1 plate or bowl. Amounts are estimates.</p><p><strong>Photo:</strong> <a href="${idea.source}" target="_blank" rel="noopener">${escapeHTML(idea.photo)}</a></p></div></div>
-            <div class="idea-card-summary"><h3>${escapeHTML(idea.name)}</h3><strong>About ${formatCarbs(idea.total)}g carbs per serving</strong>${ideaPantry.length?`<div style="color:#687064;font-size:11px;margin-top:4px;">Uses ${idea.matches} foods you have</div>`:""}</div>${editor}
+           <div class="idea-card-summary"><h3>${escapeHTML(idea.name)}</h3><strong>About ${formatCarbs(idea.total)}g carbs per serving</strong>${ideaPantry.length?`<div style="color:#687064;font-size:11px;margin-top:4px;">Uses ${idea.matches} foods you have</div>`:""}</div>
+
+${ideaExpanded ? `
+    <div style="padding:12px 14px;background:#FFFDF7;border-top:1px solid #D9E1D1;border-bottom:1px solid #D9E1D1;" onclick="event.stopPropagation();">
+        <p style="margin:0 0 6px;color:#294A1D;font-weight:800;">Ingredients and amounts</p>
+        <p style="margin:0;color:#596454;font-size:13px;line-height:1.5;">
+            ${escapeHTML(detailIngredients)}
+        </p>
+
+        ${idea.instructions ? `
+            <p style="margin:12px 0 6px;color:#294A1D;font-weight:800;">Instructions</p>
+            <p style="margin:0;color:#596454;font-size:13px;line-height:1.5;white-space:pre-wrap;">
+                ${escapeHTML(idea.instructions)}
+            </p>
+        ` : ""}
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <button type="button" onclick="toggleMealIdeaAdjust(${idea.index})" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer;">
+                ${editorOpen ? "Close adjustment" : "Adjust recipe"}
+            </button>
+
+            <button type="button" onclick="event.stopPropagation();saveMealIdeaRecipe(${idea.index})" style="border:0;background:#E4EBDD;color:#294A1D;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer;">
+                Save to My Recipes
+            </button>
+        </div>
+    </div>
+` : ""}
+
+${editor}
         </article>`,withinTarget:idea.total<=idea.target,matches:idea.matches,total:idea.total};
     });
     const savedCards = renderSavedRecipeIdeaCards();
@@ -5402,67 +5881,89 @@ function renderMealIdeaCards() {
 
 function renderSavedRecipeIdeaCards() {
     if (!savedRecipes.length) return [];
-    return savedRecipes.filter(recipe=>{
-        const ingredients=recipe.ingredients || [];
-        const portionCarbs=(Number(recipe.plateCarbs ?? recipe.totalCarbs) || mealIdeaPlateNutrition({ingredients}))/Math.max(1,Number(recipe.servings)||1);
-        const targetIdea=Number.isInteger(recipe.autoIdeaIndex)?mealIdeas[recipe.autoIdeaIndex]:null;
-        const target=getMealIdeaTarget({category:recipe.category || targetIdea?.category || "Dinner"});
-        const within=portionCarbs<=target;
-        const category=recipe.category || targetIdea?.category;
-        return !ideaHasExcludedFood({name:recipe.name,ingredients}) && (mealIdeaTargetFilter!=="within" || within) && (mealIdeaCategory==="All" || category===mealIdeaCategory) && (mealIdeaCategory==="All" || !ideaPantry.length || ingredients.some(item=>ideaPantry.includes(item.food)));
-    }).map(recipe=>{
-        const id=String(recipe.id);
-        const ingredients=recipe.ingredients || [];
-        const matches=ingredients.filter(item=>ideaPantry.includes(item.food)).length;
-        const servings=Math.max(1,Number(recipe.servings)||1);
-        const portion=recipe.portion || "plate";
-        const total=Number(recipe.totalCarbs) || mealIdeaNutrition({ingredients});
-        const plate=recipe.plateCarbs === undefined ? mealIdeaPlateNutrition({ingredients}) : Number(recipe.plateCarbs) || 0;
-        const photo=recipe.photoData ? `<img src="${escapeHTML(recipe.photoData)}" alt="Your photo of ${escapeHTML(recipe.name)}" loading="lazy">` : `<div role="img" aria-label="No recipe photo added" style="height:100%;background:linear-gradient(135deg,#E4EBDD,#F4EBDD);display:flex;align-items:center;justify-content:center;color:#687064;font-size:14px;font-weight:800;">Add your own meal photo</div>`;
-        const detailText=ingredients.map(item=>`${item.ounces!==undefined?`${item.ounces} oz`:item.label || "1 serving"} ${item.food}${isDrinkRecipeIngredient(item)?" (drink)":""}`).join(" · ");
-        const detailsOpen=openIdeaDetailsIndex===id;
-        const servingCarbs=plate/servings;
-        const targetIdea=Number.isInteger(recipe.autoIdeaIndex)?mealIdeas[recipe.autoIdeaIndex]:null;
-        const target=getMealIdeaTarget({category:recipe.category || targetIdea?.category || "Dinner"});
-        const cardOpen=openSavedIdeaCardId===id;
-        const actions=cardOpen?`<div class="idea-card-actions" onclick="event.stopPropagation()"><button onclick="toggleSavedRecipeEditor('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer;">Adjust recipe</button><label style="position:relative;display:inline-flex;align-items:center;border:1px solid #C8D3C0;background:white;color:#294A1D;border-radius:9px;padding:6px 8px;font-size:12px;font-weight:800;cursor:pointer;">Photo<input type="file" accept="image/*" aria-label="Add or change picture for ${escapeHTML(recipe.name)}" onchange="saveSavedRecipePicture('${escapeQuotes(id)}',this.files?.[0])" style="position:absolute;width:1px;height:1px;opacity:0;"></label><span id="saved-recipe-photo-status-${escapeQuotes(id)}" aria-live="polite" style="align-self:center;color:#687064;font-size:10px;">${escapeHTML(savedRecipePhotoFeedback[id] || "")}</span></div>`:"";
-        return {html:`<article class="idea-card saved-idea-card" onclick="toggleSavedIdeaCard('${escapeQuotes(id)}')" role="button" tabindex="0" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();toggleSavedIdeaCard('${escapeQuotes(id)}')}" aria-expanded="${cardOpen}"><div class="idea-photo">${photo}<button class="idea-details-toggle" type="button" aria-label="Show ingredients and serving details" onclick="event.stopPropagation();toggleIdeaDetails('${escapeQuotes(id)}')">i</button><div class="idea-hover-details ${detailsOpen?'show':''}" onclick="event.stopPropagation()"><p><strong>Ingredients and amounts</strong></p><p>${escapeHTML(detailText)}</p><p><strong>Batch serving size:</strong> ${servings} ${escapeHTML(recipePortionLabel(portion,servings))}</p><p><strong>Photo:</strong> ${recipe.photoData?'Your saved picture':'Add a personal picture after opening the card.'}</p><p><strong>Batch total:</strong> ${formatCarbs(total)}g carbs</p></div></div><div class="idea-card-summary"><div style="color:#718064;font-size:11px;font-weight:800;margin-bottom:3px;">${escapeHTML(category)}</div><h3>${escapeHTML(recipe.name)}</h3><strong>About ${formatCarbs(servingCarbs)}g carbs per ${escapeHTML(servings===1?portion:portion.replace(/s$/i,""))}</strong>${ideaPantry.length?`<div style="color:#687064;font-size:11px;margin-top:4px;">Uses ${matches} foods you have</div>`:""}</div>${actions}</article>`,withinTarget:servingCarbs<=target,matches,total:servingCarbs};
-    });
-}
 
-function saveSavedRecipePicture(id, file) {
-    if (!file) return;
-    const recipe=savedRecipes.find(item=>String(item.id)===String(id));
-    if (!recipe) return;
-    savedRecipePhotoFeedback[id]="Preparing picture…";
-    const reader=new FileReader();
-    reader.onerror=()=>{savedRecipePhotoFeedback[id]="Could not read that picture. Please choose it again.";renderMealIdeaCards();};
-    reader.onload=()=>{
-        const image=new Image();
-        image.onerror=()=>{savedRecipePhotoFeedback[id]="That file could not be opened as a picture.";renderMealIdeaCards();};
-        image.onload=()=>{
-            const maxSide=720;
-            const scale=Math.min(1,maxSide/Math.max(image.width,image.height));
-            const canvas=document.createElement("canvas");
-            canvas.width=Math.max(1,Math.round(image.width*scale));
-            canvas.height=Math.max(1,Math.round(image.height*scale));
-            const context=canvas.getContext("2d");
-            context.fillStyle="#FFFDF7";context.fillRect(0,0,canvas.width,canvas.height);
-            context.drawImage(image,0,0,canvas.width,canvas.height);
-            const previous=recipe.photoData;
-            recipe.photoData=canvas.toDataURL("image/jpeg",0.78);
-            try {
-                localStorage.setItem("carbCruncherRecipes",JSON.stringify(savedRecipes));
-                savedRecipePhotoFeedback[id]="Picture saved on this device.";
-            } catch(error) {
-                recipe.photoData=previous;
-                savedRecipePhotoFeedback[id]="This picture could not be saved because browser storage is full. Try a smaller picture.";
-            }
-            renderMealIdeaCards();
-        };
-        image.src=String(reader.result || "");
-    };
-    reader.readAsDataURL(file);
+    return savedRecipes
+        .filter(recipe => {
+            const category = recipe.category || (Number.isInteger(recipe.autoIdeaIndex) ? mealIdeas[recipe.autoIdeaIndex]?.category : "Dinner") || "Dinner";
+            return myRecipeCategory === "All" || category === myRecipeCategory;
+        })
+        .map(recipe => {
+            const id = String(recipe.id);
+            const ingredients = recipe.ingredients || [];
+            const matches = ingredients.filter(item => ideaPantry.includes(item.food)).length;
+            const servings = Math.max(1, Number(recipe.servings) || 1);
+            const portion = recipe.portion || "plate";
+            const total = Number(recipe.totalCarbs) || mealIdeaNutrition({ ingredients });
+            const plate = recipe.plateCarbs === undefined
+                ? mealIdeaPlateNutrition({ ingredients })
+                : Number(recipe.plateCarbs) || 0;
+
+            const photo = recipe.photoData
+                ? `<img src="${escapeHTML(recipe.photoData)}" alt="Your photo of ${escapeHTML(recipe.name)}" loading="lazy">`
+                : `<div role="img" aria-label="No recipe photo added" style="height:100%;background:linear-gradient(135deg,#E4EBDD,#F4EBDD);display:flex;align-items:center;justify-content:center;color:#687064;font-size:14px;font-weight:800;">Add your own meal photo</div>`;
+
+            const detailText = ingredients
+                .map(item => `${item.ounces !== undefined ? `${item.ounces} oz` : item.label || "1 serving"} ${item.food}${isDrinkRecipeIngredient(item) ? " (drink)" : ""}`)
+                .join(" · ");
+
+            const detailsOpen = openIdeaDetailsIndex === id;
+            const servingCarbs = plate / servings;
+            const targetIdea = Number.isInteger(recipe.autoIdeaIndex) ? mealIdeas[recipe.autoIdeaIndex] : null;
+            const target = getMealIdeaTarget({
+                category: recipe.category || targetIdea?.category || "Dinner"
+            });
+
+            const cardOpen = openSavedIdeaCardId === id;
+            const savedRecipeDetails = cardOpen
+    ? `<div style="padding:12px 14px;background:#FFFDF7;border-top:1px solid #D9E1D1;border-bottom:1px solid #D9E1D1;" onclick="event.stopPropagation();">
+        <p style="margin:0 0 6px;color:#294A1D;font-weight:800;">Ingredients and amounts</p>
+        <p style="margin:0;color:#596454;font-size:13px;line-height:1.5;">
+            ${escapeHTML(detailText)}
+        </p>
+        ${recipe.instructions ? `
+            <p style="margin:12px 0 6px;color:#294A1D;font-weight:800;">Instructions</p>
+            <p style="margin:0;color:#596454;font-size:13px;line-height:1.5;white-space:pre-wrap;">
+                ${escapeHTML(recipe.instructions)}
+            </p>
+        ` : ""}
+    </div>`
+    : "";
+            const actions = cardOpen
+                ? `<div class="idea-card-actions" onclick="event.stopPropagation();">
+                    <button type="button" onclick="toggleSavedRecipeEditor('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer;">Adjust recipe</button>
+                    <label style="position:relative;display:inline-flex;align-items:center;border:1px solid #C8D3C0;background:#FFFDF7;color:#294A1D;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer;">
+                        📷 ${recipe.photoData ? "Change photo" : "Add photo"}
+                        <input type="file" accept="image/*" aria-label="Add or change picture for ${escapeHTML(recipe.name)}" onchange="saveSavedRecipePicture('${escapeQuotes(id)}',this.files?.[0])" style="position:absolute;width:1px;height:1px;opacity:0;">
+                    </label>
+                    <span id="saved-recipe-photo-status-${escapeQuotes(id)}" style="color:#687064;font-size:11px;">${escapeHTML(savedRecipePhotoFeedback[id] || "")}</span>
+                </div>`
+                : "";
+
+            return {
+                html: `<article class="idea-card" onclick="toggleSavedIdeaCard('${escapeQuotes(id)}')" role="button" tabindex="0" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();toggleSavedIdeaCard('${escapeQuotes(id)}')}" aria-expanded="${cardOpen}">
+                    <div class="idea-photo">
+                        ${photo}
+                        <button class="idea-details-toggle" type="button" aria-label="Show ingredients and photo credit" onclick="event.stopPropagation();toggleIdeaDetails('${escapeQuotes(id)}')">i</button>
+                        <div class="idea-hover-details ${detailsOpen ? "show" : ""}" onclick="event.stopPropagation()">
+                            <p><strong>Ingredients and amounts</strong></p>
+                            <p>${escapeHTML(detailText)}</p>
+                            <p><strong>Serving:</strong> about 1 ${escapeHTML(portion)}. Amounts are estimates.</p>
+                        </div>
+                    </div>
+
+                    <div class="idea-card-summary">
+                        <h3>${escapeHTML(recipe.name)}</h3>
+                        <strong>About ${formatCarbs(servingCarbs)}g carbs per ${servings} ${escapeHTML(recipePortionLabel(portion, servings))}</strong>
+                        ${ideaPantry.length ? `<div style="color:#687064;font-size:11px;margin-top:4px;">Uses ${matches} foods you have</div>` : ""}
+                    </div>
+
+                ${savedRecipeDetails}${actions}
+                </article>`,
+                withinTarget: target ? servingCarbs <= target : true,
+                matches,
+                total
+            };
+        });
 }
 
 
@@ -5495,6 +5996,65 @@ function saveMealTarget(mealName, value) {
     localStorage.setItem("carbCruncherMealTargets", JSON.stringify(mealTargets));
     openSettings();
 }
+function exportMyRecipes() {
+    if (!savedRecipes.length) {
+        alert("You don't have any saved recipes to export yet.");
+        return;
+    }
+
+    const cleanFileName = name => {
+        return String(name || "recipe")
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 80) || "recipe";
+    };
+
+    const usedNames = {};
+
+    const recipes = savedRecipes.map(recipe => {
+        const baseName = cleanFileName(recipe.name);
+        usedNames[baseName] = (usedNames[baseName] || 0) + 1;
+
+        const imageFileName = recipe.photoData
+            ? `${baseName}-${usedNames[baseName]}.jpg`
+            : "";
+
+        return {
+    ...recipe,
+    imageFileName: "TEST-IMAGE.jpg",
+            ingredients: Array.isArray(recipe.ingredients)
+                ? recipe.ingredients.map(item => ({...item}))
+                : []
+        };
+    });
+alert(JSON.stringify(recipes[0], null, 2));
+
+const exportData = {
+    testValue: "HELLO TEST",
+    exportedAt: new Date().toISOString(),
+    recipes
+};
+
+    const blob = new Blob(
+        [JSON.stringify(exportData, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "carb-cruncher-recipes-export.json";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+}
+
 
 function setMyRecipeCategory(category) {
     myRecipeCategory = category;
@@ -5514,7 +6074,22 @@ function openMyCruncher() {
             <div style="background:#FFFDF7;border:2px solid #D9E1D1;border-radius:24px;padding:20px;margin-bottom:15px;">
                 <h3 style="color:#294A1D;margin:0 0 10px;">My Recipes</h3>
                 <div style="display:flex;gap:8px;overflow:auto;padding:0 0 12px;">${["All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snack"].map(category=>`<button type="button" onclick="setMyRecipeCategory('${category}')" style="white-space:nowrap;padding:9px 13px;border:1px solid #C8D3C0;border-radius:20px;background:${myRecipeCategory===category?'#3F6F2A':'#FFFDF7'};color:${myRecipeCategory===category?'white':'#294A1D'};font-weight:800;cursor:pointer;">${category}</button>`).join("")}</div>
-                <div class="my-recipe-grid">
+                <div style="margin:0 0 14px;padding:12px;background:#E4EBDD;border-radius:12px;">
+    <div style="color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">
+        Publish My Recipes
+    </div>
+    <div style="color:#687064;font-size:12px;line-height:1.45;margin-bottom:9px;">
+        Export your saved recipes, ingredients, carb information, and photos so they can be added to the Carb Cruncher app.
+    </div>
+    <button
+        type="button"
+        onclick="exportMyRecipes()"
+        ${savedRecipes.length ? "" : "disabled"}
+        style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer;"
+    >
+        Export My Recipes
+    </button>
+</div><div class="my-recipe-grid">
                 ${savedRecipes.length ? savedRecipes.filter(recipe=>{
                     const category=recipe.category || (Number.isInteger(recipe.autoIdeaIndex) ? mealIdeas[recipe.autoIdeaIndex]?.category : "Dinner") || "Dinner";
                     return myRecipeCategory === "All" || category === myRecipeCategory;
@@ -5531,21 +6106,150 @@ function openMyCruncher() {
                     const editor = draft ? `<div class="my-recipe-editor" onclick="event.stopPropagation()" style="margin-top:14px;padding-top:14px;border-top:1px solid #D9E1D1;">
                         <h4 style="margin:0 0 6px;color:#294A1D;">Customize recipe</h4><p style="margin:0 0 10px;color:#687064;font-size:12px;line-height:1.45;">Choose a serving size, then set how many you eat (for example, 3 crackers). Carb estimates update for the batch and each plate.</p>
                         <label style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin-bottom:4px;">Recipe name</label><input value="${escapeHTML(draft.name)}" oninput="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','name',this.value)" style="box-sizing:border-box;width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;margin-bottom:10px;"><label style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:0 0 4px;">Meal category</label><select onchange="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','category',this.value)" style="width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;margin-bottom:10px;">${recipeCategoryOptions(category)}</select>
-                        ${ingredients.length ? ingredients.map((item,ingredientIndex)=>{
-                            const food=foods.find(entry=>entry.name===item.food);
-                            const foodServings=food?getFoodServings(food):[];
-                            return `<div style="display:grid;grid-template-columns:minmax(100px,1fr) minmax(125px,1.2fr) auto;gap:6px;align-items:center;margin:8px 0;"><select aria-label="Recipe ingredient" onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'food',this.value)" style="min-width:0;padding:7px;border:1px solid #C8D3C0;border-radius:9px;background:white;">${foods.map(entry=>`<option value="${escapeHTML(entry.name)}" ${entry.name===item.food?'selected':''}>${escapeHTML(entry.name)}</option>`).join("")}</select><select aria-label="Serving size" onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'label',this.value)" style="min-width:0;padding:7px;border:1px solid #C8D3C0;border-radius:9px;background:white;">${foodServings.map(serving=>`<option value="${escapeHTML(serving.label)}" ${serving.label===item.label?'selected':''}>${escapeHTML(serving.label)} · ${formatCarbs(Number(serving.carbs)||0)}g</option>`).join("")}</select><button aria-label="Remove ingredient" onclick="removeSavedRecipeIngredient('${escapeQuotes(id)}',${ingredientIndex})" style="border:0;background:#F2E8E0;color:#7A4637;border-radius:8px;padding:7px 9px;font-weight:800;">×</button></div><label style="display:flex;align-items:center;gap:7px;margin:0 0 10px;color:#294A1D;font-size:12px;font-weight:800;">Quantity of selected serving <input type="number" min="0.25" step="0.25" value="${Number(item.quantity)||1}" onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'quantity',this.value)" style="width:72px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;font:inherit;"></label>${appPreferences.measurementStyle==="exact"?`<label style="display:flex;align-items:center;gap:7px;margin:0 0 10px;color:#687064;font-size:12px;font-weight:700;">Custom amount in ounces <input type="number" min="0" step="0.1" placeholder="e.g. 10" value="${item.ounces ?? ""}" onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'ounces',this.value)" style="width:82px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;font:inherit;"> by weight</label>`:""}`;
-                        }).join("") : `<p style="color:#687064;">No ingredients yet.</p>`}
+                   ${ingredients.length ? ingredients.map((item,ingredientIndex)=>{
+    if (item.custom === true) {
+        return `<div style="margin:8px 0;padding:10px;background:#F4EEDB;border:1px solid #D9E1D1;border-radius:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="min-width:0;">
+                    <div style="color:#294A1D;font-weight:800;">${escapeHTML(item.food)}</div>
+                    <div style="color:#687064;font-size:12px;margin-top:3px;">
+                        ${escapeHTML(item.label)} · ${formatCarbs(Number(item.carbsPerServing)||0)}g carbs
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    aria-label="Remove ingredient"
+                    onclick="removeSavedRecipeIngredient('${escapeQuotes(id)}',${ingredientIndex})"
+                    style="border:0;background:#F2E8E0;color:#7A4637;border-radius:8px;padding:7px 9px;font-weight:800;"
+                >×</button>
+            </div>
+
+            <label style="display:flex;align-items:center;gap:7px;margin:8px 0 0;color:#294A1D;font-size:12px;font-weight:800;">
+                Quantity
+                <input
+                    type="number"
+                    min="0.25"
+                    step="0.25"
+                    value="${Number(item.quantity)||1}"
+                    onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'quantity',this.value)"
+                    style="width:72px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;font:inherit;"
+                >
+            </label>
+        </div>`;
+    }
+
+    const food=foods.find(entry=>entry.name===item.food);
+    const foodServings=food?getFoodServings(food):[];
+
+    return `<div style="display:grid;grid-template-columns:minmax(100px,1fr) minmax(125px,1.2fr) auto;gap:6px;align-items:center;margin:8px 0;">
+        <select aria-label="Recipe ingredient" onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'food',this.value)" style="min-width:0;padding:7px;border:1px solid #C8D3C0;border-radius:9px;background:white;">
+            ${foods.map(entry=>`<option value="${escapeHTML(entry.name)}" ${entry.name===item.food?'selected':''}>${escapeHTML(entry.name)}</option>`).join("")}
+        </select>
+
+        <select aria-label="Serving size" onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'label',this.value)" style="min-width:0;padding:7px;border:1px solid #C8D3C0;border-radius:9px;background:white;">
+            ${foodServings.map(serving=>`<option value="${escapeHTML(serving.label)}" ${serving.label===item.label?'selected':''}>${escapeHTML(serving.label)} · ${formatCarbs(Number(serving.carbs)||0)}g</option>`).join("")}
+        </select>
+
+        <button
+            aria-label="Remove ingredient"
+            onclick="removeSavedRecipeIngredient('${escapeQuotes(id)}',${ingredientIndex})"
+            style="border:0;background:#F2E8E0;color:#7A4637;border-radius:8px;padding:7px 9px;font-weight:800;"
+        >×</button>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:7px;margin:0 0 10px;color:#294A1D;font-size:12px;font-weight:800;">
+        Quantity of selected serving
+        <input
+            type="number"
+            min="0.25"
+            step="0.25"
+            value="${Number(item.quantity)||1}"
+            onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'quantity',this.value)"
+            style="width:72px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;font:inherit;"
+        >
+    </label>
+
+    ${appPreferences.measurementStyle==="exact"?`<label style="display:flex;align-items:center;gap:7px;margin:0 0 10px;color:#687064;font-size:12px;font-weight:700;">
+        Custom amount in ounces
+        <input
+            type="number"
+            min="0"
+            step="0.1"
+            placeholder="e.g. 10"
+            value="${item.ounces ?? ""}"
+            onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'ounces',this.value)"
+            style="width:82px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;font:inherit;"
+        >
+        by weight
+    </label>`:""}`;
+}).join("") : `<p style="color:#687064;">No ingredients yet.</p>`}
                         <label for="saved-recipe-add-${escapeQuotes(id)}" style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:12px 0 5px;">Search foods to add</label><div style="display:flex;gap:7px;"><input id="saved-recipe-add-${escapeQuotes(id)}" type="search" list="saved-recipe-options-${escapeQuotes(id)}" oninput="this.setCustomValidity('')" placeholder="Start typing a food" style="flex:1;min-width:0;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><datalist id="saved-recipe-options-${escapeQuotes(id)}">${foods.map(food=>`<option value="${escapeHTML(food.name)}"></option>`).join("")}</datalist><button onclick="addSavedRecipeIngredient('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 10px;font-weight:800;">Add</button></div>
                         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;"><label style="color:#294A1D;font-size:12px;font-weight:800;">Batch makes about</label><input type="number" min="1" step="1" value="${servings}" oninput="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','servings',this.value)" style="width:62px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;"><select onchange="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','portion',this.value)" style="padding:7px;border:1px solid #C8D3C0;border-radius:8px;background:white;">${portionOptions}</select></div>
-                        <div id="saved-recipe-preview-${escapeQuotes(id)}" style="padding:10px;margin-top:10px;background:#E4EBDD;border-radius:10px;color:#294A1D;font-weight:800;">Batch total: ${formatCarbs(total)}g · About ${formatCarbs(plateTotal/servings)}g per ${servings} ${escapeHTML(recipePortionLabel(portion,servings))}</div>
+                        <div style="margin-top:12px;padding:12px;background:#F4EEDB;border:1px solid #D9E1D1;border-radius:12px;">
+    <div style="color:#294A1D;font-size:12px;font-weight:800;margin-bottom:8px;">+ Add custom ingredient</div>
+
+    <input
+        id="saved-recipe-custom-name-${escapeQuotes(id)}"
+        type="text"
+        placeholder="Ingredient name"
+        oninput="this.setCustomValidity('')"
+        style="box-sizing:border-box;width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;margin-bottom:7px;"
+    >
+
+    <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <input
+            id="saved-recipe-custom-serving-${escapeQuotes(id)}"
+            type="text"
+            placeholder="Serving, e.g. 1/4 cup"
+            oninput="this.setCustomValidity('')"
+            style="flex:1;min-width:140px;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"
+        >
+
+        <input
+            id="saved-recipe-custom-carbs-${escapeQuotes(id)}"
+            type="number"
+            min="0"
+            step="0.1"
+            placeholder="Carbs (g)"
+            oninput="this.setCustomValidity('')"
+            style="width:105px;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"
+        >
+
+        <button
+            type="button"
+            onclick="addCustomSavedRecipeIngredient('${escapeQuotes(id)}')"
+            style="border:0;background:#294A1D;color:white;border-radius:9px;padding:8px 11px;font-weight:800;"
+        >
+            Add custom
+        </button>
+    </div>
+
+    <div style="color:#687064;font-size:11px;margin-top:6px;">
+        Use the serving size and carbs listed on your package or recipe.
+    </div>
+</div>
+
+<label
+    style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:12px 0 5px;"
+>
+    Recipe instructions / notes
+</label>
+
+<textarea
+    rows="5"
+    placeholder="Add cooking instructions, notes, substitutions, or anything you want to remember..."
+    oninput="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','instructions',this.value)"
+    style="box-sizing:border-box;width:100%;padding:10px;border:1px solid #C8D3C0;border-radius:9px;background:#FFFDF7;color:#263025;font:inherit;resize:vertical;margin-bottom:10px;"
+>${escapeHTML(draft.instructions || "")}</textarea>
+
+<div id="saved-recipe-preview-${escapeQuotes(id)}"></div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button onclick="saveRecipeDetails('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:9px 11px;font-weight:800;">Save changes</button><button onclick="saveRecipeAsNew('${escapeQuotes(id)}')" style="border:0;background:#E4EBDD;color:#294A1D;border-radius:9px;padding:9px 11px;font-weight:800;">Save as New Recipe</button><button onclick="cancelSavedRecipeEdit('${escapeQuotes(id)}')" style="border:0;background:#F2E8E0;color:#7A4637;border-radius:9px;padding:9px 11px;font-weight:800;">Cancel</button></div>
                     </div>` : "";
                     return `<article class="idea-card my-recipe-card ${draft?'my-recipe-card-editing':''}">
                         <button type="button" class="my-recipe-remove" aria-label="Remove recipe" onclick="event.stopPropagation();deleteSavedRecipe('${escapeQuotes(id)}')">×<span class="remove-tooltip" role="tooltip">Remove</span></button>
                         <div class="idea-photo">${recipe.photoData?`<img src="${escapeHTML(recipe.photoData)}" alt="Saved photo for ${escapeHTML(recipe.name)}" loading="lazy">`:`<div role="img" aria-label="No recipe photo" style="height:100%;display:flex;align-items:center;justify-content:center;color:#687064;font-size:14px;font-weight:800;">Add your own meal photo</div>`}</div>
                         <div class="idea-card-summary"><div style="color:#718064;font-size:11px;font-weight:800;margin-bottom:3px;">${escapeHTML(category)}</div><h3>${escapeHTML(recipe.name)}</h3><strong>About ${formatCarbs(plateTotal/servings)}g carbs per ${escapeHTML(servings===1?portion:portion.replace(/s$/i,""))}</strong><div style="margin-top:6px;color:#687064;font-size:12px;line-height:1.4;">Batch: ${servings} ${escapeHTML(recipePortionLabel(portion,servings))} · ${formatCarbs(total)}g carbs</div></div>
-                        <div class="idea-card-actions"><button onclick="toggleSavedRecipeEditor('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer;">${draft?"Close editor":"Customize"}</button></div>
+                      <div class="idea-card-actions" onclick="event.stopPropagation();"><button type="button" onclick="toggleSavedRecipeEditor('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer;">${draft?"Close editor":"Customize"}</button><label style="position:relative;display:inline-flex;align-items:center;border:1px solid #C8D3C0;background:#FFFDF7;color:#294A1D;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer;">📷 ${recipe.photoData ? "Change photo" : "Add photo"}<input type="file" accept="image/*" aria-label="Add or change picture for ${escapeHTML(recipe.name)}" onchange="saveSavedRecipePicture('${escapeQuotes(id)}',this.files?.[0])" style="position:absolute;width:1px;height:1px;opacity:0;"></label></div>
                         ${editor}
                     </article>`;
                 }).join("") : `<p style="grid-column:1/-1;color:#687064;">Saved meals will show here with batch totals and estimated carbs per bowl or plate.</p>`}
