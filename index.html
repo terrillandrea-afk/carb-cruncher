@@ -1468,7 +1468,7 @@ onclick="openQuickLookup(); return false;"
 </nav>
 
 </main>
-
+<script src="./published-recipes.js"></script>
 <script>
 
 /* =========================================================
@@ -5153,7 +5153,7 @@ const mealIdeas = [
     { name: "Black Bean and Veggie Bowl", category: "Lunch", note: "A budget-friendly bowl of beans, vegetables, and rice with salsa. Use what you already have.", ingredients: [{food:"Black Beans",label:"1/2 cup cooked"},{food:"Corn",label:"1/4 cup cooked"},{food:"Brown Rice",label:"1/3 cup cooked"},{food:"Salsa",label:"2 tablespoons"},{food:"Avocado",label:"1/2 medium avocado"}], image:"https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1000&q=85", photo:"Unsplash", source:"https://unsplash.com/" },
     { name: "Pickled Cucumbers", category: "Snack", ingredients: [{food:"Pickled Cucumbers",label:"1/2 cup"}], image:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?auto=format&fit=crop&w=1000&q=85", photo:"Unsplash", source:"https://unsplash.com/" }
 ];
-
+mealIdeas.push(...publishedRecipes);
 savedRecipes = savedRecipes.map(recipe => {
     const inheritedCategory = Number.isInteger(recipe.autoIdeaIndex) ? mealIdeas[recipe.autoIdeaIndex]?.category : "";
     const category = recipeCategories.includes(recipe.category) ? recipe.category : (recipeCategories.includes(inheritedCategory) ? inheritedCategory : "Dinner");
@@ -6023,16 +6023,13 @@ function exportMyRecipes() {
 
         return {
     ...recipe,
-    imageFileName: "TEST-IMAGE.jpg",
+    imageFileName,
             ingredients: Array.isArray(recipe.ingredients)
                 ? recipe.ingredients.map(item => ({...item}))
                 : []
         };
     });
-alert(JSON.stringify(recipes[0], null, 2));
-
 const exportData = {
-    testValue: "HELLO TEST",
     exportedAt: new Date().toISOString(),
     recipes
 };
