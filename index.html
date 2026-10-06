@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+sa<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -5110,6 +5110,196 @@ if (food) {
             </div>
         </div>
     `;
+        totalContainer.innerHTML += `
+        <div style="
+            background:#FFFDF7;
+            border:2px solid #D9E1D1;
+            border-radius:20px;
+            padding:18px;
+            margin-top:14px;
+            text-align:left;
+        ">
+
+            <label
+                for="cookAsYouGoDishName"
+                style="
+                    display:block;
+                    color:#294A1D;
+                    font-weight:800;
+                    font-size:16px;
+                    margin-bottom:7px;
+                "
+            >
+                Name your dish
+            </label>
+
+            <input
+                id="cookAsYouGoDishName"
+                type="text"
+                value="${escapeHTML(cookAsYouGoName)}"
+                placeholder="Example: Chicken and rice"
+                oninput="cookAsYouGoName=this.value"
+                style="
+                    box-sizing:border-box;
+                    width:100%;
+                    padding:11px;
+                    border:2px solid #B8C9A5;
+                    border-radius:12px;
+                    background:white;
+                    color:#263025;
+                    font:inherit;
+                "
+            >
+
+            <button
+                type="button"
+                onclick="saveCookAsYouGoRecipe()"
+                style="
+                    display:block;
+                    width:100%;
+                    margin-top:12px;
+                    padding:13px 16px;
+                    border:0;
+                    border-radius:13px;
+                    background:#3F6F2A;
+                    color:white;
+                    font-family:Nunito,sans-serif;
+                    font-size:17px;
+                    font-weight:800;
+                    cursor:pointer;
+                "
+            >
+                Save Recipe
+            </button>
+
+            <p
+                id="cookAsYouGoSaveStatus"
+                aria-live="polite"
+                style="
+                    margin:10px 0 0;
+                    color:#294A1D;
+                    font-size:14px;
+                    font-weight:700;
+                "
+            ></p>
+
+        </div>
+    `;
+    
+    
+}function saveCookAsYouGoRecipe() {
+
+    const status =
+        document.getElementById("cookAsYouGoSaveStatus");
+
+    const name =
+        String(
+            document.getElementById("cookAsYouGoDishName")?.value ||
+            cookAsYouGoName ||
+            ""
+        ).trim();
+
+    if (!name) {
+        if (status) {
+            status.textContent =
+                "Please name your dish before saving.";
+        }
+        return;
+    }
+
+    if (!cookAsYouGoIngredients.length) {
+        if (status) {
+            status.textContent =
+                "Add at least one ingredient before saving.";
+        }
+        return;
+    }
+
+    const ingredients =
+        cookAsYouGoIngredients.map(ingredient => ({
+            food: ingredient.name,
+            label: ingredient.servingLabel,
+            quantity: Number(ingredient.quantity || 1)
+        }));
+
+    const totalCarbs =
+        cookAsYouGoIngredients.reduce(
+            (total, ingredient) =>
+                total +
+                (
+                    Number(ingredient.carbsPerServing) *
+                    Number(ingredient.quantity || 1)
+                ),
+            0
+        );
+
+    const recipeRecord = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name,
+        ingredients,
+        totalCarbs,
+        plateCarbs: totalCarbs,
+        servings: 1,
+        portion: "plate",
+        category: "Dinner",
+        instructions: "",
+        photoData: "",
+        createdAt: new Date().toISOString()
+    };
+
+    savedRecipes.push(recipeRecord);
+
+    localStorage.setItem(
+        "carbCruncherRecipes",
+        JSON.stringify(savedRecipes)
+    );
+
+    cookAsYouGoName = name;
+
+   if (status) {
+    status.innerHTML =
+        `Saved “${escapeHTML(name)}” to My Recipes.
+        <br><br>
+        <button
+            type="button"
+            onclick="openBuildMeal()"
+            style="
+                padding:12px 18px;
+                margin:4px;
+                border:0;
+                border-radius:12px;
+                background:#3F6F2A;
+                color:white;
+                font-family:Nunito,sans-serif;
+                font-weight:800;
+                cursor:pointer;
+            "
+        >
+            Build a Plate
+        </button>
+
+        <button
+            type="button"
+            onclick="openMyCruncher()"
+            style="
+                padding:12px 18px;
+                margin:4px;
+                border:2px solid #3F6F2A;
+                border-radius:12px;
+                background:#FFFDF7;
+                color:#294A1D;
+                font-family:Nunito,sans-serif;
+                font-weight:800;
+                cursor:pointer;
+            "
+        >
+            Go to My Recipes
+        </button>`;
+}
+   setTimeout(() => {
+    cookAsYouGoIngredients = [];
+    cookAsYouGoName = "";
+}, 800);
 }
 /* =========================================================
    BUILD MEAL SEARCH RESULTS
@@ -6518,10 +6708,87 @@ function cancelSavedRecipeEdit(id) {
     openMyCruncher();
 }
 function deleteSavedRecipe(id) {
-    if (!confirm("Delete this saved recipe?")) return;
-    savedRecipes = savedRecipes.filter(item => item.id !== id);
-    localStorage.setItem("carbCruncherRecipes", JSON.stringify(savedRecipes));
+
+    const recipe =
+        savedRecipes.find(item => item.id === id);
+
+    if (!recipe) return;
+
+    const card =
+        document.querySelector(
+            `.my-recipe-remove[onclick*="${escapeQuotes(id)}"]`
+        )?.closest(".my-recipe-card");
+
+    if (!card) return;
+
+    const existing =
+        card.querySelector(".delete-confirmation");
+
+    if (existing) return;
+
+    const confirmation =
+        document.createElement("div");
+
+    confirmation.className =
+        "delete-confirmation";
+
+    confirmation.style.cssText =
+        "margin-top:10px;padding:12px;background:#F2E8E0;border-radius:12px;color:#7A4637;font-weight:800;text-align:center;";
+
+    confirmation.innerHTML = `
+        <div style="margin-bottom:8px;">
+            Delete “${escapeHTML(recipe.name)}”?
+        </div>
+
+        <button
+            type="button"
+            onclick="confirmDeleteSavedRecipe('${escapeQuotes(id)}')"
+            style="
+                border:0;
+                border-radius:9px;
+                padding:8px 12px;
+                background:#7A4637;
+                color:white;
+                font-weight:800;
+                margin-right:6px;
+                cursor:pointer;
+            "
+        >
+            Delete
+        </button>
+
+        <button
+            type="button"
+            onclick="this.closest('.delete-confirmation').remove()"
+            style="
+                border:1px solid #7A4637;
+                border-radius:9px;
+                padding:8px 12px;
+                background:#FFFDF7;
+                color:#7A4637;
+                font-weight:800;
+                cursor:pointer;
+            "
+        >
+            Cancel
+        </button>
+    `;
+
+    card.appendChild(confirmation);
+    window.confirmDeleteSavedRecipe = function(id) {
+
+    savedRecipes =
+        savedRecipes.filter(
+            item => item.id !== id
+        );
+
+    localStorage.setItem(
+        "carbCruncherRecipes",
+        JSON.stringify(savedRecipes)
+    );
+
     openMyCruncher();
+}
 }
 function updateIdeaFood(index, ingredientIndex, foodName) {
     const food = foods.find(entry => entry.name === foodName);
