@@ -4367,7 +4367,8 @@ function openBuildMeal(clearExisting = true) {
 let cookAsYouGoIngredients = [];
 let cookAsYouGoName = "";
 window.openCookAsYouGo = function() {
-
+    cookAsYouGoIngredients = [];
+    cookAsYouGoName = "";
     showScreen(
         "Cook as You Go",
         `
@@ -4375,21 +4376,7 @@ window.openCookAsYouGo = function() {
 
             <h2>What are you cooking?</h2>
 
-            <input
-                type="text"
-                id="cookRecipeName"
-                placeholder="Name your dish..."
-                style="
-                    width: 100%;
-                    padding: 12px;
-                    border-radius: 12px;
-                    border: 1px solid #B8C9A5;
-                    font-family: Nunito, sans-serif;
-                    font-size: 16px;
-                    box-sizing: border-box;
-                    margin-bottom: 16px;
-                "
-            >
+           
 
             ${createSearch()}
 
@@ -4579,9 +4566,10 @@ if (search) {
     search.addEventListener("input", function () {
         renderFoodResultsForCook(this.value);
     });
-}
+    
 
 renderFoodResultsForCook("");
+}
 }
 /* =========================================================
    RENDER COOK AS YOU GO INGREDIENTS
@@ -4666,7 +4654,23 @@ if (food) {
                     ">
                         ${escapeHTML(ingredient.name)}
                     </div>
-
+<button
+    type="button"
+    onclick="removeCookIngredient(${index})"
+    style="
+        margin-top: 8px;
+        padding: 7px 12px;
+        border: none;
+        border-radius: 12px;
+        background: #E4EBDD;
+        color: #294A1D;
+        font-family: Nunito, sans-serif;
+        font-weight: 800;
+        cursor: pointer;
+    "
+>
+    Remove
+</button>
                    ${
     food
     ?
