@@ -2480,7 +2480,266 @@ function handleFoodSearch(query) {
 
 }
 
+function openAddYourOwnFood() {
 
+    const searchValue =
+        document.getElementById("foodSearch")?.value?.trim() || "";
+
+    const container =
+        document.getElementById("foodResults");
+
+    if (!container) return;
+
+    container.innerHTML = `
+        <div style="
+            background:#E4EBDD;
+            border:2px solid #D9E1D1;
+            border-radius:18px;
+            padding:16px;
+            text-align:left;
+            margin-bottom:14px;
+        ">
+
+            <div style="
+                font-family:Caveat,cursive;
+                font-size:28px;
+                color:#294A1D;
+                margin-bottom:4px;
+            ">
+                Add Your Own Food
+            </div>
+
+            <p style="
+                margin:0 0 14px;
+                color:#687064;
+                font-size:13px;
+                line-height:1.5;
+            ">
+                Add a food or ingredient that isn't in the Carb Cruncher list.
+                It will be saved for you to use again.
+            </p>
+
+            <label style="
+                display:block;
+                color:#294A1D;
+                font-weight:800;
+                font-size:13px;
+                margin:8px 0 4px;
+            ">
+                Food name
+            </label>
+
+            <input
+                id="personalFoodName"
+                type="text"
+                value="${escapeHTML(searchValue)}"
+                placeholder="Example: homemade salsa"
+                style="
+                    width:100%;
+                    box-sizing:border-box;
+                    padding:10px;
+                    border:1px solid #C8D3C0;
+                    border-radius:9px;
+                    background:#FFFDF7;
+                    color:#263025;
+                    font:inherit;
+                "
+            >
+
+            <label style="
+                display:block;
+                color:#294A1D;
+                font-weight:800;
+                font-size:13px;
+                margin:10px 0 4px;
+            ">
+                Serving size / measurement
+            </label>
+
+            <input
+                id="personalFoodServing"
+                type="text"
+                placeholder="Example: 1 tablespoon"
+                style="
+                    width:100%;
+                    box-sizing:border-box;
+                    padding:10px;
+                    border:1px solid #C8D3C0;
+                    border-radius:9px;
+                    background:#FFFDF7;
+                    color:#263025;
+                    font:inherit;
+                "
+            >
+
+            <label style="
+                display:block;
+                color:#294A1D;
+                font-weight:800;
+                font-size:13px;
+                margin:10px 0 4px;
+            ">
+                Carbohydrates per serving (g)
+            </label>
+
+            <input
+                id="personalFoodCarbs"
+                type="number"
+                min="0"
+                max="300"
+                step="0.1"
+                placeholder="Example: 3"
+                style="
+                    width:150px;
+                    box-sizing:border-box;
+                    padding:10px;
+                    border:1px solid #C8D3C0;
+                    border-radius:9px;
+                    background:#FFFDF7;
+                    color:#263025;
+                    font:inherit;
+                "
+            >
+
+            <button
+                type="button"
+                onclick="savePersonalFood()"
+                style="
+                    display:block;
+                    width:100%;
+                    padding:12px 16px;
+                    margin-top:14px;
+                    border:0;
+                    border-radius:12px;
+                    background:#3F6F2A;
+                    color:#FFFFFF;
+                    font:inherit;
+                    font-weight:800;
+                    cursor:pointer;
+                "
+            >
+                Save Food
+            </button>
+
+            <button
+                type="button"
+                onclick="renderFoodResultsForCook(document.getElementById('foodSearch')?.value || '')"
+                style="
+                    display:block;
+                    width:100%;
+                    padding:10px;
+                    margin-top:8px;
+                    border:2px solid #3F6F2A;
+                    border-radius:12px;
+                    background:#FFFFFF;
+                    color:#294A1D;
+                    font:inherit;
+                    font-weight:800;
+                    cursor:pointer;
+                "
+            >
+                Cancel
+            </button>
+
+            <p
+                id="personalFoodStatus"
+                aria-live="polite"
+                style="
+                    margin:10px 0 0;
+                    color:#294A1D;
+                    font-size:13px;
+                    font-weight:700;
+                "
+            ></p>
+
+        </div>
+    `;
+}
+function savePersonalFood() {
+
+    const field = id => document.getElementById(id);
+
+    const name =
+        String(field("personalFoodName")?.value || "").trim();
+
+    const serving =
+        String(field("personalFoodServing")?.value || "").trim();
+
+    const carbs =
+        Number(field("personalFoodCarbs")?.value);
+
+    const status =
+        field("personalFoodStatus");
+
+    if (
+        !name ||
+        !serving ||
+        !Number.isFinite(carbs) ||
+        carbs < 0
+    ) {
+        if (status) {
+            status.textContent =
+                "Add the food name, serving size, and carbs per serving.";
+        }
+        return;
+    }
+
+    if (
+        foods.some(
+            item =>
+                String(item.name || "").toLowerCase() ===
+                name.toLowerCase()
+        )
+    ) {
+        if (status) {
+            status.textContent =
+                "That food is already listed. Search for it instead.";
+        }
+        return;
+    }
+
+    const food = {
+        name,
+        serving,
+        carbs,
+        category: "Personal Foods",
+        personal: true,
+        servingOptions: [
+            {
+                label: `1 serving (${serving})`,
+                amount: 1,
+                carbs
+            },
+            {
+                label: `1/2 serving (${serving})`,
+                amount: 0.5,
+                carbs: carbs * 0.5
+            },
+            {
+                label: `1/4 serving (${serving})`,
+                amount: 0.25,
+                carbs: carbs * 0.25
+            }
+        ]
+    };
+
+    foods.push(food);
+    savedCustomFoods.push(food);
+
+    localStorage.setItem(
+        "carbCruncherCustomFoods",
+        JSON.stringify(savedCustomFoods)
+    );
+
+    if (status) {
+        status.textContent =
+            `${name} saved. You can search for it anytime.`;
+    }
+
+    setTimeout(() => {
+        addFoodToCook(name);
+    }, 300);
+}
 function brandedFoodFormHTML() {
     return `<details id="brandedFoodForm" style="background:#FFFDF7;border:2px solid #D9E1D1;border-radius:18px;padding:14px;margin:0 0 14px;"><summary style="cursor:pointer;color:#294A1D;font-weight:800;font-size:16px;">Add a branded food from its package label</summary><p style="color:#596454;font-size:14px;line-height:1.5;margin:9px 0;">Use the serving size and Total Carbohydrate on the Nutrition Facts label. This local app does not import USDA records automatically. You can <a href="https://fdc.nal.usda.gov/food-search/?type=Branded" target="_blank" rel="noopener" style="color:#294A1D;font-weight:800;">search USDA FoodData Central</a>, then enter the package label here. Review saved entries about every 6 months, or sooner if the package changes.</p><input id="brandFoodEditName" type="hidden" value=""><label style="display:block;color:#294A1D;font-weight:800;font-size:13px;margin:8px 0 4px;">Brand</label><input id="brandFoodBrand" placeholder="Example: store or brand name" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><label style="display:block;color:#294A1D;font-weight:800;font-size:13px;margin:8px 0 4px;">Food or product</label><input id="brandFoodProduct" placeholder="Example: plain yogurt" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><label style="display:block;color:#294A1D;font-weight:800;font-size:13px;margin:8px 0 4px;">Serving size from package</label><input id="brandFoodServing" placeholder="Example: 1 cup (170 g)" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><label style="display:block;color:#294A1D;font-weight:800;font-size:13px;margin:8px 0 4px;">Total carbohydrate per serving (g)</label><input id="brandFoodCarbs" type="number" min="0" max="300" step="0.1" placeholder="Example: 12" style="width:150px;box-sizing:border-box;padding:10px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><button type="button" onclick="saveBrandedFood()" style="display:block;border:0;background:#3F6F2A;color:white;border-radius:10px;padding:10px 14px;font-weight:800;margin-top:10px;">${editingBrandedFoodName ? "Update package information" : "Add branded food"}</button><p id="brandFoodStatus" aria-live="polite" style="margin:8px 0 0;color:#596454;font-size:13px;"></p></details>`;
 }
@@ -4454,21 +4713,42 @@ function renderFoodResultsForCook(query) {
             .includes(search)
     );
 
-    if (!matches.length) {
+if (!matches.length) {
 
-        container.innerHTML = `
-            <div style="
-                padding: 16px;
-                text-align: center;
-                color: #687064;
-                font-weight: 700;
-            ">
-                No matching foods found.
-            </div>
-        `;
+    container.innerHTML = `
+        <div style="
+            padding: 16px;
+            text-align: center;
+            color: #687064;
+            font-weight: 700;
+        ">
+            No matching foods found.
+        </div>
 
-        return;
-    }
+        <button
+            type="button"
+            onclick="openAddYourOwnFood()"
+            style="
+                width: 100%;
+                text-align: left;
+                padding: 14px;
+                margin-bottom: 8px;
+                border: 1px solid #D9E1D1;
+                border-radius: 16px;
+                background: #E4EBDD;
+                color: #294A1D;
+                font-family: Nunito, sans-serif;
+                font-size: 16px;
+                font-weight: 800;
+                cursor: pointer;
+            "
+        >
+            + Add Your Own Food
+        </button>
+    `;
+
+    return;
+}
 
     container.innerHTML = matches
         .slice(0, 20)
@@ -4515,8 +4795,16 @@ function addFoodToCook(name) {
     });
 
     renderCookAsYouGoIngredients();
-    function setCookServing(index, servingIndex) {
-    
+
+window.removeCookIngredient = function(index) {
+
+    cookAsYouGoIngredients.splice(index, 1);
+
+    renderCookAsYouGoIngredients();
+
+};
+
+function setCookServing(index, servingIndex) {
 
     const ingredient =
         cookAsYouGoIngredients[index];
@@ -4638,14 +4926,15 @@ if (food) {
                 Number(ingredient.quantity || 1);
 
             return `
-                <div style="
-                    background:#FFFDF7;
-                    border:1px solid #D9E1D1;
-                    border-radius:18px;
-                    padding:14px;
-                    margin-top:12px;
-                    text-align:left;
-                ">
+               <div style="
+    position:relative;
+    background:#FFFDF7;
+    border:1px solid #D9E1D1;
+    border-radius:18px;
+    padding:44px 14px 14px;
+    margin-top:12px;
+    text-align:right;
+">
 
                     <div style="
                         font-weight:800;
@@ -4657,19 +4946,26 @@ if (food) {
 <button
     type="button"
     onclick="removeCookIngredient(${index})"
+    aria-label="Remove ingredient"
     style="
-        margin-top: 8px;
-        padding: 7px 12px;
-        border: none;
-        border-radius: 12px;
-        background: #E4EBDD;
-        color: #294A1D;
-        font-family: Nunito, sans-serif;
-        font-weight: 800;
-        cursor: pointer;
+        position:absolute;
+        top:8px;
+        right:8px;
+        width:30px;
+        height:30px;
+        padding:0;
+        border:none;
+        border-radius:50%;
+        background:#E4EBDD;
+        color:#294A1D;
+        font-family:Nunito, sans-serif;
+        font-size:21px;
+        font-weight:800;
+        line-height:30px;
+        cursor:pointer;
     "
 >
-    Remove
+    ×
 </button>
                    ${
     food
@@ -7235,19 +7531,116 @@ function openSettings() {
                 <p id="suggestionSendStatus" aria-live="polite" style="color:#596454;font-size:14px;line-height:1.5;margin:8px 0 0;">When using the website, the form sends through FormSubmit. When this local file is open, it opens a prefilled email for you to review and send. FormSubmit says the first website submission triggers an activation email; confirm it once to start receiving suggestions. <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener" style="color:#294A1D;font-weight:800;">Read its privacy policy</a>.</p>
             </form>
         </div>
+        <div style="background:#FFFDF7;border:2px solid #D9E1D1;border-radius:25px;padding:20px;margin-bottom:16px;">
+            <h2 style="color:#294A1D;font-size:23px;margin:0 0 8px;">My Personal Foods</h2>
 
+            <p style="color:#596454;font-size:14px;line-height:1.5;margin:0 0 12px;">
+                Foods you added yourself are saved on this device. You can remove a personal food here if you no longer want it.
+            </p>
+
+            <div id="personalFoodsSettingsList"></div>
+        </div>
         <div style="background:#FFFDF7;border:2px solid #D9E1D1;border-radius:25px;padding:20px;">
             <h3 style="color:#294A1D;margin:0 0 12px;">Carb Cruncher</h3>
             <p style="color:#596454;font-size:15px;line-height:1.55;margin:0;">Your preferences, recipes, and any optional diary entries are stored locally in this browser.</p>
-        </div>
+      
+            </div>
     `);
     populateLearningVoiceOptions();
     if ("speechSynthesis" in window && !learningVoiceListenerAdded && window.speechSynthesis.addEventListener) {
         window.speechSynthesis.addEventListener("voiceschanged", populateLearningVoiceOptions);
         learningVoiceListenerAdded = true;
     }
+    renderPersonalFoodsSettings();
 }
+function renderPersonalFoodsSettings() {
 
+    const container =
+        document.getElementById("personalFoodsSettingsList");
+
+    if (!container) return;
+
+    const personalFoods =
+        savedCustomFoods.filter(food => food.personal === true);
+
+    if (!personalFoods.length) {
+        container.innerHTML = `
+            <p style="color:#687064;font-size:14px;margin:0;">
+                You have not added any personal foods yet.
+            </p>
+        `;
+        return;
+    }
+
+    container.innerHTML = personalFoods.map(food => `
+        <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            padding:10px 0;
+            border-top:1px solid #D9E1D1;
+        ">
+            <div style="flex:1;min-width:0;">
+                <strong style="color:#294A1D;font-size:16px;">
+                    ${escapeHTML(food.name)}
+                </strong>
+                <div style="color:#687064;font-size:13px;margin-top:3px;">
+                    ${escapeHTML(food.serving || "")} · ${Number(food.carbs)}g carbs
+                </div>
+            </div>
+
+            <button
+                type="button"
+                onclick="deletePersonalFood('${escapeQuotes(food.name)}')"
+                aria-label="Delete ${escapeHTML(food.name)}"
+                style="
+                    flex:0 0 auto;
+                    border:0;
+                    border-radius:50%;
+                    width:32px;
+                    height:32px;
+                    background:#E4EBDD;
+                    color:#294A1D;
+                    font-size:20px;
+                    font-weight:800;
+                    cursor:pointer;
+                "
+            >
+                ×
+            </button>
+        </div>
+    `).join("");
+}
+function deletePersonalFood(name) {
+
+    const index = savedCustomFoods.findIndex(
+        food =>
+            food.personal === true &&
+            food.name === name
+    );
+
+    if (index === -1) return;
+
+    savedCustomFoods.splice(index, 1);
+
+    const foodIndex = foods.findIndex(
+        food =>
+            food.personal === true &&
+            food.name === name
+    );
+
+    if (foodIndex !== -1) {
+        foods.splice(foodIndex, 1);
+    }
+
+    localStorage.setItem(
+        "carbCruncherCustomFoods",
+        JSON.stringify(savedCustomFoods)
+    );
+
+    renderPersonalFoodsSettings();
+}
 /* =========================================================
    NAVIGATION
 ========================================================= */
