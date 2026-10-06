@@ -1300,38 +1300,103 @@
     <div id="homeFoodResults"></div>
 
 </div>
-    <!-- QUICK LOOK UP -->
+   <!-- COOK AS YOU GO -->
 
- <a
-href="#"
-class="card card-primary"
-onclick="openQuickLookup(); return false;"
-
+<a
+    href="#"
+    class="card card-primary"
+    onclick="openCookAsYouGo(); return false;"
 >
 
-        <div class="card-text">
+    <div class="card-text">
 
-            <span class="card-title">
-                Quick Look Up
-            </span>
+        <span class="card-title">
+            Cook as You Go
+        </span>
 
-            <span class="card-description">
-                Check carb counts for individual foods instantly.
-            </span>
+        <span class="card-description">
+            Build a dish ingredient by ingredient while you cook.
+        </span>
 
-        </div>
+    </div>
 
-        <div class="food-area">
+    <div class="food-area">
 
-            <img
-                src="./Search icon.png"
-                alt="Search"
-                class="apple-image"
-            >
+        <img
+            src="Cook as you go logo.png"
+            alt="Cook as You Go"
+            class="apple-image"
+        >
 
-        </div>
+    </div>
 
-    </a>
+</a>
+
+
+<!-- BUILD A MEAL -->
+
+<a
+    href="#"
+    class="card card-secondary"
+    onclick="openBuildMeal(); return false;"
+>
+
+    <div class="card-text">
+
+        <span class="card-title">
+            Build a Meal
+        </span>
+
+        <span class="card-description">
+            Put together everything you're eating and see your total carbs.
+        </span>
+
+    </div>
+
+    <div class="burger-area">
+
+        <img
+            src="./burger.png"
+            alt="Hand-drawn burger"
+            class="burger-image"
+        >
+
+    </div>
+
+</a>
+
+
+<!-- MEAL IDEAS -->
+
+<a
+    href="#"
+    class="card card-idea"
+    onclick="openMealIdeas(); return false;"
+>
+
+    <div class="card-text">
+
+        <span class="card-title">
+            Meal Ideas
+        </span>
+
+        <span class="card-description">
+            Get ideas for what you can make.
+        </span>
+
+    </div>
+
+    <div class="idea-area">
+
+        <img
+            src="lightbulb.png"
+            alt="Meal Ideas"
+            class="idea-image"
+        >
+
+    </div>
+
+</a>
 
 
     <!-- BUILD A MEAL -->
@@ -4296,8 +4361,456 @@ function openBuildMeal(clearExisting = true) {
     renderFoodResultsForMeal("");
 
 }
+/* =========================================================
+   COOK AS YOU GO
+========================================================= */
+let cookAsYouGoIngredients = [];
+let cookAsYouGoName = "";
+window.openCookAsYouGo = function() {
 
+    showScreen(
+        "Cook as You Go",
+        `
+        <div style="padding: 20px;">
 
+            <h2>What are you cooking?</h2>
+
+            <input
+                type="text"
+                id="cookRecipeName"
+                placeholder="Name your dish..."
+                style="
+                    width: 100%;
+                    padding: 12px;
+                    border-radius: 12px;
+                    border: 1px solid #B8C9A5;
+                    font-family: Nunito, sans-serif;
+                    font-size: 16px;
+                    box-sizing: border-box;
+                    margin-bottom: 16px;
+                "
+            >
+
+            ${createSearch()}
+
+            <div id="cookAsYouGoList"></div>
+
+            <div id="cookAsYouGoTotal"></div>
+
+        </div>
+        `
+    );
+
+    const search = document.getElementById("foodSearch");
+
+    if (search) {
+        search.addEventListener("input", function () {
+            renderFoodResultsForCook(this.value);
+        });
+    }
+
+    renderFoodResultsForCook("");
+
+};
+document.addEventListener("click", function(event) {
+
+    const card = event.target.closest(".card-primary");
+
+    if (!card) return;
+
+    if (card.querySelector(".card-title")?.textContent.trim() !== "Cook as You Go") {
+        return;
+    }
+
+    event.preventDefault();
+    openCookAsYouGo();
+
+});
+/* =========================================================
+   COOK AS YOU GO SEARCH RESULTS
+========================================================= */
+
+function renderFoodResultsForCook(query) {
+
+    const container =
+        document.getElementById("foodResults");
+
+    if (!container) return;
+
+    const search =
+        String(query || "")
+            .trim()
+            .toLowerCase();
+
+    if (!search) {
+
+        container.innerHTML = `
+            <div style="
+                background: #E4EBDD;
+                border-radius: 22px;
+                padding: 16px;
+                text-align: center;
+                color: #687064;
+                font-weight: 700;
+                margin-bottom: 16px;
+            ">
+                Search for an ingredient to add to your dish.
+            </div>
+        `;
+
+        return;
+    }
+
+    const matches = foods.filter(food =>
+        String(food.name || "")
+            .toLowerCase()
+            .includes(search)
+    );
+
+    if (!matches.length) {
+
+        container.innerHTML = `
+            <div style="
+                padding: 16px;
+                text-align: center;
+                color: #687064;
+                font-weight: 700;
+            ">
+                No matching foods found.
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = matches
+        .slice(0, 20)
+        .map(food => `
+            <button
+                type="button"
+                onclick="addFoodToCook('${escapeQuotes(food.name)}')"
+                style="
+                    width: 100%;
+                    text-align: left;
+                    padding: 14px;
+                    margin-bottom: 8px;
+                    border: 1px solid #D9E1D1;
+                    border-radius: 16px;
+                    background: #FFFDF7;
+                    font-family: Nunito, sans-serif;
+                    font-size: 16px;
+                    cursor: pointer;
+                "
+            >
+                <strong>${escapeHTML(food.name)}</strong>
+            </button>
+        `)
+        .join("");
+}
+/* =========================================================
+   ADD FOOD TO COOK AS YOU GO
+========================================================= */
+
+function addFoodToCook(name) {
+
+    const food = foods.find(item => item.name === name);
+
+    if (!food) return;
+
+    const servings = getFoodServings(food);
+    const serving = servings[0];
+
+    cookAsYouGoIngredients.push({
+        name: food.name,
+        servingLabel: serving.label,
+        carbsPerServing: Number(serving.carbs) || 0,
+        quantity: 1
+    });
+
+    renderCookAsYouGoIngredients();
+    function setCookServing(index, servingIndex) {
+    
+
+    const ingredient =
+        cookAsYouGoIngredients[index];
+
+    if (!ingredient) return;
+
+    const food =
+        foods.find(
+            food => food.name === ingredient.name
+        );
+
+    if (!food) return;
+
+    const servings =
+        getFoodServings(food);
+
+    const serving =
+        servings[Number(servingIndex)];
+
+    if (!serving) return;
+
+    ingredient.servingLabel =
+        serving.label;
+
+    ingredient.carbsPerServing =
+        Number(serving.carbs) || 0;
+
+    renderCookAsYouGoIngredients();
+
+}
+window.setCookQuantity = function(index, value) {
+
+    const ingredient =
+        cookAsYouGoIngredients[index];
+
+    if (!ingredient) return;
+
+    ingredient.quantity =
+        Number(value) || 1;
+
+    renderCookAsYouGoIngredients();
+
+}
+    const search = document.getElementById("foodSearch");
+
+if (search) {
+    search.addEventListener("input", function () {
+        renderFoodResultsForCook(this.value);
+    });
+}
+
+renderFoodResultsForCook("");
+}
+/* =========================================================
+   RENDER COOK AS YOU GO INGREDIENTS
+========================================================= */
+
+function renderCookAsYouGoIngredients() {
+
+    const container =
+        document.getElementById("cookAsYouGoList");
+
+    const totalContainer =
+        document.getElementById("cookAsYouGoTotal");
+
+    if (!container || !totalContainer) return;
+
+    if (!cookAsYouGoIngredients.length) {
+
+        container.innerHTML = `
+            <div style="
+                background:#F4EEDB;
+                border-radius:18px;
+                padding:16px;
+                margin-top:16px;
+                color:#687064;
+                font-weight:700;
+            ">
+                Your ingredients will appear here.
+            </div>
+        `;
+
+        totalContainer.innerHTML = "";
+
+        return;
+    }
+
+    container.innerHTML = cookAsYouGoIngredients
+        .map((ingredient, index) => {
+const food =
+    foods.find(
+        food => food.name === ingredient.name
+    );
+
+const servings =
+    food
+        ? getFoodServings(food)
+        : [];
+
+let selectedServingIndex = 0;
+
+if (food) {
+
+    const foundIndex =
+        servings.findIndex(
+            serving =>
+                serving.label ===
+                ingredient.servingLabel
+        );
+
+    if (foundIndex >= 0) {
+        selectedServingIndex = foundIndex;
+    }
+
+}
+            const carbs =
+                Number(ingredient.carbsPerServing) *
+                Number(ingredient.quantity || 1);
+
+            return `
+                <div style="
+                    background:#FFFDF7;
+                    border:1px solid #D9E1D1;
+                    border-radius:18px;
+                    padding:14px;
+                    margin-top:12px;
+                    text-align:left;
+                ">
+
+                    <div style="
+                        font-weight:800;
+                        color:#294A1D;
+                        font-size:17px;
+                    ">
+                        ${escapeHTML(ingredient.name)}
+                    </div>
+
+                   ${
+    food
+    ?
+    `
+        <select
+            onchange="
+                setCookServing(
+                    ${index},
+                    this.value
+                )
+            "
+            style="
+                width:100%;
+                padding:11px;
+                margin-top:10px;
+                border:2px solid #B8C9A5;
+                border-radius:16px;
+                background:white;
+                color:#294A1D;
+                font-family:Nunito,sans-serif;
+                font-weight:800;
+                font-size:14px;
+            "
+        >
+
+            ${
+                servings.map(
+                    (serving, i) => `
+                        <option
+                            value="${i}"
+                            ${
+                                i === selectedServingIndex
+                                ? "selected"
+                                : ""
+                            }
+                        >
+                            ${escapeHTML(serving.label)}
+                        </option>
+                    `
+                ).join("")
+            }
+
+        </select>
+    `
+    :
+    ""
+}
+<div style="
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+">
+
+    <div style="
+        flex:1;
+    ">
+
+        <div style="
+            font-size:12px;
+            color:#687064;
+            font-weight:800;
+            margin-bottom:5px;
+        ">
+            Quantity
+        </div>
+
+        <select
+            onchange="
+                setCookQuantity(
+                    ${index},
+                    this.value
+                )
+            "
+            style="
+                width:100%;
+                padding:11px;
+                border:2px solid #B8C9A5;
+                border-radius:16px;
+                background:white;
+                color:#294A1D;
+                font-family:Nunito,sans-serif;
+                font-weight:800;
+                font-size:14px;
+            "
+        >
+            ${createQuantityOptions(ingredient.quantity)}
+        </select>
+
+    </div>
+
+    <span style="
+        font-weight:800;
+        color:#3F6F2A;
+        white-space:nowrap;
+        padding-top:18px;
+    ">
+        ${carbs.toFixed(1)} g
+    </span>
+
+</div>
+
+                </div>
+            `;
+        })
+        .join("");
+
+    const totalCarbs = cookAsYouGoIngredients.reduce(
+        (total, ingredient) =>
+            total +
+            (
+                Number(ingredient.carbsPerServing) *
+                Number(ingredient.quantity || 1)
+            ),
+        0
+    );
+
+    totalContainer.innerHTML = `
+        <div style="
+            background:#E4EBDD;
+            border:2px solid #D9E1D1;
+            border-radius:20px;
+            padding:18px;
+            margin-top:18px;
+            text-align:center;
+        ">
+            <div style="
+                font-family:Caveat,cursive;
+                font-size:28px;
+                color:#294A1D;
+            ">
+                Dish total
+            </div>
+
+            <div style="
+                font-size:24px;
+                font-weight:900;
+                color:#3F6F2A;
+            ">
+                ${totalCarbs.toFixed(1)} g carbs
+            </div>
+        </div>
+    `;
+}
 /* =========================================================
    BUILD MEAL SEARCH RESULTS
 ========================================================= */
@@ -4747,75 +5260,63 @@ function renderMeal() {
                             }
 
 
-                            <div style="
-                                display: flex;
-                                align-items: center;
-                                gap: 10px;
-                                margin-top: 12px;
-                            ">
+                    <div style="
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+">
 
-                                <button
-                                    onclick="
-                                        changeQuantity(
-                                            ${index},
-                                            -1
-                                        )
-                                    "
-                                    style="
-                                        width: 38px;
-                                        height: 38px;
-                                        border: none;
-                                        border-radius: 50%;
-                                        background: #B8C9A5;
-                                        color: #294A1D;
-                                        font-size: 20px;
-                                        font-weight: 800;
-                                        cursor: pointer;
-                                    "
-                                >
-                                    −
-                                </button>
+    <div style="
+        flex: 1;
+    ">
 
+        <div style="
+            font-size: 12px;
+            color: #687064;
+            font-weight: 800;
+            margin-bottom: 5px;
+        ">
+            Quantity
+        </div>
 
-                                <strong style="min-width:64px;text-align:center;font-size:15px;">
-                                    ${escapeHTML(formatServingQuantityLabel(item.servingLabel || item.serving || "1 serving", quantity))}
-                                </strong>
+        <select
+            onchange="
+                setMealQuantity(
+                    ${index},
+                    this.value
+                )
+            "
+            style="
+                width: 100%;
+                padding: 11px;
+                border: 2px solid #B8C9A5;
+                border-radius: 16px;
+                background: white;
+                color: #294A1D;
+                font-family: Nunito, sans-serif;
+                font-weight: 800;
+                font-size: 14px;
+            "
+        >
+            ${createQuantityOptions(quantity)}
+        </select>
 
-
-                                <button
-                                    onclick="
-                                        changeQuantity(
-                                            ${index},
-                                            1
-                                        )
-                                    "
-                                    style="
-                                        width: 38px;
-                                        height: 38px;
-                                        border: none;
-                                        border-radius: 50%;
-                                        background: #B8C9A5;
-                                        color: #294A1D;
-                                        font-size: 20px;
-                                        font-weight: 800;
-                                        cursor: pointer;
-                                    "
-                                >
-                                    +
-                                </button>
+    </div>
 
 
-                                <span style="
-                                    margin-left: auto;
-                                    font-weight: 800;
-                                    color: #3F6F2A;
-                                ">
-                                    ${formatCarbs(
-                                        carbs * quantity
-                                    )}g
-                                </span>
+    <span style="
+        font-weight: 800;
+        color: #3F6F2A;
+        white-space: nowrap;
+        padding-top: 18px;
+    ">
+        ${formatCarbs(
+            carbs * quantity
+        )}g
+    </span>
 
-                            </div>
+</div>
 
                         </div>
 
@@ -5037,11 +5538,51 @@ function changeMealServing(
 
 }
 
+function createQuantityOptions(quantity) {
 
+    const current = Number(quantity) || 1;
+
+    const options = [
+        0.25,
+        0.5,
+        0.75,
+        1,
+        1.25,
+        1.5,
+        1.75,
+        2,
+        2.5,
+        3,
+        4,
+        5,
+        6,
+        8,
+        10
+    ];
+
+    return options.map(value => `
+        <option
+            value="${value}"
+            ${value === current ? "selected" : ""}
+        >
+            ${value}
+        </option>
+    `).join("");
+}
 /* =========================================================
    CHANGE MEAL QUANTITY
 ========================================================= */
+function setMealQuantity(index, value) {
 
+    if (!meal[index]) return;
+
+    meal[index].quantity = Number(value) || 1;
+
+    saveData();
+
+    renderMeal();
+
+}
 function changeQuantity(
     index,
     amount
