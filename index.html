@@ -1334,7 +1334,7 @@ sa<html lang="en">
 
 
 
-    <!-- BUILD A MEAL -->
+    <!-- BUILD A Plate -->
 
     <a
         href="#"
@@ -1344,7 +1344,7 @@ sa<html lang="en">
         <div class="card-text">
 
             <span class="card-title">
-                Build a Meal
+                Build a plate
             </span>
 
             <span class="card-description">
@@ -2167,14 +2167,14 @@ function showScreen(title, content) {
 
     app.classList.add("screen-open");
     app.classList.toggle("settings-wide", title === "Settings");
-    app.classList.toggle("content-wide", ["Quick Look Up", "Build a Meal", "What Can I Make?", "Learning", "My Carb Cruncher"].includes(title));
+    app.classList.toggle("content-wide", ["Quick Look Up", "Build a Plate", "What Can I Make?", "Learning", "My Carb Cruncher"].includes(title));
 
     const existing =
         document.querySelector(".functional-screen");
 
 
     if (existing) {
-        if (existing.querySelector("h1")?.textContent.trim() === "Build a Meal" && title !== "Build a Meal") {
+        if (existing.querySelector("h1")?.textContent.trim() === "Build a Plate" && title !== "Build a Plate") {
             resetMealBuilderDraft();
         }
         existing.remove();
@@ -5293,9 +5293,15 @@ function renderFoodResultsForMeal(query) {
                     .toLowerCase()
                     .includes(search)
         );
+const savedRecipeMatch =
+    savedRecipes.find(
+        recipe =>
+            String(recipe.name || "")
+                .toLowerCase()
+                .includes(search)
+    );
 
-
-    if (!match) {
+   if (!match && !savedRecipeMatch) {
 
         container.innerHTML = `
 
@@ -5317,7 +5323,45 @@ function renderFoodResultsForMeal(query) {
 
     }
 
+if (savedRecipeMatch && !match) {
 
+    container.innerHTML = `
+        <button
+            type="button"
+            onclick="addSavedRecipeToMeal('${escapeQuotes(savedRecipeMatch.id)}')"
+            style="
+                width: 100%;
+                border: 2px solid #D9E1D1;
+                background: #FFFDF7;
+                border-radius: 20px;
+                padding: 14px 16px;
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                text-align: left;
+                color: #263025;
+                font-family: Nunito, sans-serif;
+            "
+        >
+            <div style="display:flex;flex-direction:column;align-items:flex-start;">
+                <strong style="font-weight:800;">
+                    ${escapeHTML(savedRecipeMatch.name)}
+                </strong>
+                <span style="color:#687064;font-size:12px;margin-top:3px;">
+                    ${formatCarbs(Number(savedRecipeMatch.totalCarbs) || 0)}g carbs · Saved Recipe
+                </span>
+            </div>
+
+            <span style="color:#3F6F2A;font-weight:800;white-space:nowrap;">
+                Add +
+            </span>
+        </button>
+    `;
+
+    return;
+}
     const defaultServing =
         getFoodServings(match)[0];
 
@@ -5373,7 +5417,41 @@ function renderFoodResultsForMeal(query) {
 /* =========================================================
    ADD FOOD TO BUILD MEAL
 ========================================================= */
+window.addSavedRecipeToMeal = function(recipeId) {
 
+    const recipe =
+        savedRecipes.find(
+            item => String(item.id) === String(recipeId)
+        );
+
+    if (!recipe) return;
+
+    const recipeIngredients =
+        (recipe.ingredients || []).map(item => ({ ...item }));
+
+    meal.push({
+        name: recipe.name,
+        servingLabel: "1 recipe",
+        carbsPerServing: Number(recipe.totalCarbs) || 0,
+        isDrink: false,
+        quantity: 1,
+        savedRecipeId: recipe.id,
+        recipeIngredients
+    });
+
+    saveData();
+
+    openBuildMeal(false);
+
+    const search =
+        document.getElementById("foodSearch");
+
+    if (search) {
+        search.value = "";
+    }
+
+    renderFoodResultsForMeal("");
+};
 function addFoodToMeal(name, servingLabel = null, carbsPerServing = null, quantity = 1) {
 
     const food =
