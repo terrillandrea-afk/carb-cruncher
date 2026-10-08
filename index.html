@@ -2045,7 +2045,7 @@ let openMealIdeaIndex = -1;
 let mealIdeaEdits = JSON.parse(localStorage.getItem("carbCruncherIdeaEdits")) || {};
 let ideaPantry = JSON.parse(localStorage.getItem("carbCruncherIdeaPantry")) || [];
 let savedRecipes = JSON.parse(localStorage.getItem("carbCruncherRecipes")) || [];
-const recipeCategories = ["Breakfast", "Lunch", "Dinner", "Dessert", "Snack"];
+const recipeCategories = ["Breakfast", "Lunch", "Dinner","Sides", "Dessert", "Snack"];
 let openSavedIdeaCardId = null;
 let appPreferences = JSON.parse(localStorage.getItem("carbCruncherPreferences")) || {name:"",recipeSaving:"ask",measurementStyle:"home",theme:"warm",fontSize:"normal",fontFamily:"nunito",excludedFoods:[],diaryEnabled:false,dataSharingConsent:false};
 appPreferences.fontFamily = appPreferences.fontFamily || "nunito";
@@ -4201,7 +4201,7 @@ function renderLookupMeal() {
                                         cursor: pointer;
                                     "
                                 >
-                                    Remove
+                                   x Remove
                                 </button>
 
                             </div>
@@ -5349,9 +5349,14 @@ if (savedRecipeMatch && !match) {
                 <strong style="font-weight:800;">
                     ${escapeHTML(savedRecipeMatch.name)}
                 </strong>
-                <span style="color:#687064;font-size:12px;margin-top:3px;">
-                    ${formatCarbs(Number(savedRecipeMatch.totalCarbs) || 0)}g carbs · Saved Recipe
-                </span>
+               <span style="
+    color:#3F6F2A;
+    font-size:12px;
+    margin-top:4px;
+    font-weight:800;
+">
+    ${formatCarbs(Number(savedRecipeMatch.totalCarbs) || 0)}g carbs · ★ Saved Recipe
+</span>
             </div>
 
             <span style="color:#3F6F2A;font-weight:800;white-space:nowrap;">
@@ -5669,24 +5674,29 @@ function renderMeal() {
                                 </div>
 
 
-                                <button
-                                    onclick="
-                                        removeFoodFromMeal(
-                                            ${index}
-                                        )
-                                    "
-                                    style="
-                                        border: none;
-                                        background: #E4EBDD;
-                                        color: #294A1D;
-                                        border-radius: 16px;
-                                        padding: 8px 11px;
-                                        font-weight: 800;
-                                        cursor: pointer;
-                                    "
-                                >
-                                    Remove
-                                </button>
+                            <button
+    onclick="
+        removeFoodFromMeal(
+            ${index}
+        )
+    "
+    title="Remove"
+    aria-label="Remove ${escapeHTML(item.name)}"
+    style="
+        border: none;
+        background: #E4EBDD;
+        color: #294A1D;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+        font-weight: 800;
+        cursor: pointer;
+        flex-shrink: 0;
+    "
+>
+    ×
+</button>
 
                             </div>
 
@@ -6945,17 +6955,76 @@ function renderMealIdeaCards() {
                 <p style="margin:0 0 10px;color:#687064;font-size:12px;">${appPreferences.recipeSaving === "automatic" ? "Your ingredient changes are saved automatically. You can rename the recipe and set an approximate batch size here." : "Amounts above are for the whole batch. Enter an approximate number of bowls or plates; you can adjust it later after cooking."}</p>
                 <label style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin-bottom:4px;">Recipe name</label>
                 <input id="idea-recipe-name-${idea.index}" value="${escapeHTML(ideaRecipeDrafts[idea.index]?.name ?? mealIdeas[idea.index].name)}" oninput="updateRecipeSavePreview(${idea.index})" onkeydown="if(event.key==='Enter'){event.preventDefault();saveMealIdeaRecipe(${idea.index})}" style="box-sizing:border-box;width:100%;padding:10px;border:1px solid #C8D3C0;border-radius:10px;font:inherit;margin-bottom:9px;">
-                <label for="idea-recipe-category-${idea.index}" style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin-bottom:4px;">Meal category</label>
-                <select id="idea-recipe-category-${idea.index}" onchange="updateRecipeSavePreview(${idea.index})" style="width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;margin-bottom:9px;">${recipeCategoryOptions(ideaRecipeDrafts[idea.index]?.category || mealIdeas[idea.index].category)}</select>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                    <label for="idea-batch-servings-${idea.index}" style="color:#294A1D;font-size:12px;font-weight:800;">Batch makes about</label>
-                    <input id="idea-batch-servings-${idea.index}" type="number" min="1" step="1" value="${escapeHTML(ideaRecipeDrafts[idea.index]?.servings ?? "1")}" oninput="updateRecipeSavePreview(${idea.index})" style="width:68px;padding:8px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;">
-                    <select id="idea-batch-portion-${idea.index}" aria-label="Serving type" onchange="updateRecipeSavePreview(${idea.index})" style="padding:8px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;"><option value="plate" ${(ideaRecipeDrafts[idea.index]?.portion || "plate")==="plate"?'selected':''}>plate</option><option value="bowl" ${ideaRecipeDrafts[idea.index]?.portion==="bowl"?'selected':''}>bowl</option><option value="serving" ${ideaRecipeDrafts[idea.index]?.portion==="serving"?'selected':''}>serving</option></select>
-                </div>
-                <div id="idea-batch-preview-${idea.index}" style="margin:10px 0;color:#3F6F2A;font-weight:800;">About ${formatCarbs(idea.total / Math.max(1, Number(ideaRecipeDrafts[idea.index]?.servings) || 1))}g carbs per ${Math.max(1, Number(ideaRecipeDrafts[idea.index]?.servings) || 1)} ${escapeHTML(recipePortionLabel(ideaRecipeDrafts[idea.index]?.portion || "plate", Math.max(1, Number(ideaRecipeDrafts[idea.index]?.servings) || 1)))}</div>
-                <button onclick="saveMealIdeaRecipe(${idea.index})" style="width:100%;border:0;background:#3F6F2A;color:white;border-radius:12px;padding:12px;font-weight:800;cursor:pointer;">${appPreferences.recipeSaving === "automatic" ? "Update saved recipe" : "Save to My Recipes"}</button>
-                ${savedIdeaFeedback[idea.index] ? `<p style="margin:9px 0 0;color:#3F6F2A;font-size:13px;font-weight:800;">${escapeHTML(savedIdeaFeedback[idea.index])}</p>` : ""}
-            </div>
+               <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:10px;">
+
+    <div>
+        <label for="idea-recipe-category-${idea.index}" style="display:block;font-weight:800;color:#294A1D;margin-bottom:6px;">
+            Meal category
+        </label>
+
+        <select
+            id="idea-recipe-category-${idea.index}"
+            onchange="updateMealIdeaBatchPreview(${idea.index})"
+            style="
+                width:100%;
+                box-sizing:border-box;
+                padding:10px;
+                border:2px solid #D9E1D1;
+                border-radius:12px;
+                background:#FFFDF7;
+            "
+        >
+            ${recipeCategoryOptions(idea.category || "Dinner")}
+        </select>
+    </div>
+
+    <div>
+        <label for="idea-batch-servings-${idea.index}" style="display:block;font-weight:800;color:#294A1D;margin-bottom:6px;">
+            Batch makes
+        </label>
+
+        <div style="display:flex;gap:6px;align-items:center;">
+
+            <input
+                id="idea-batch-servings-${idea.index}"
+                type="number"
+                min="1"
+                step="1"
+                value="${Number(idea.servings || 1)}"
+                onchange="updateMealIdeaBatchPreview(${idea.index})"
+                style="
+                    width:58px;
+                    box-sizing:border-box;
+                    padding:10px 6px;
+                    border:2px solid #D9E1D1;
+                    border-radius:12px;
+                    background:#FFFDF7;
+                    text-align:center;
+                "
+            >
+
+            <select
+                id="idea-batch-portion-${idea.index}"
+                onchange="updateMealIdeaBatchPreview(${idea.index})"
+                style="
+                    width:110px;
+                    box-sizing:border-box;
+                    padding:10px 6px;
+                    border:2px solid #D9E1D1;
+                    border-radius:12px;
+                    background:#FFFDF7;
+                "
+            >
+                <option value="servings">servings</option>
+                <option value="pieces">pieces</option>
+                <option value="cups">cups</option>
+                <option value="containers">containers</option>
+            </select>
+
+        </div>
+    </div>
+
+</div>
         </div>` : "";
         const cleanAmount = label => String(label || "").replace(/\s*\([^)]*\)/g, "").trim();
         const detailIngredients = idea.ingredients.map(item=>`${cleanAmount(item.label)} ${item.food}`.trim()).join(" · ");
@@ -7190,7 +7259,7 @@ function openMyCruncher() {
 
             <div style="background:#FFFDF7;border:2px solid #D9E1D1;border-radius:24px;padding:20px;margin-bottom:15px;">
                 <h3 style="color:#294A1D;margin:0 0 10px;">My Recipes</h3>
-                <div style="display:flex;gap:8px;overflow:auto;padding:0 0 12px;">${["All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snack"].map(category=>`<button type="button" onclick="setMyRecipeCategory('${category}')" style="white-space:nowrap;padding:9px 13px;border:1px solid #C8D3C0;border-radius:20px;background:${myRecipeCategory===category?'#3F6F2A':'#FFFDF7'};color:${myRecipeCategory===category?'white':'#294A1D'};font-weight:800;cursor:pointer;">${category}</button>`).join("")}</div>
+                <div style="display:flex;gap:8px;overflow:auto;padding:0 0 12px;">${["All", "Breakfast", "Lunch", "Dinner", "Sides","Dessert", "Snack"].map(category=>`<button type="button" onclick="setMyRecipeCategory('${category}')" style="white-space:nowrap;padding:9px 13px;border:1px solid #C8D3C0;border-radius:20px;background:${myRecipeCategory===category?'#3F6F2A':'#FFFDF7'};color:${myRecipeCategory===category?'white':'#294A1D'};font-weight:800;cursor:pointer;">${category}</button>`).join("")}</div>
                 <div style="margin:0 0 14px;padding:12px;background:#E4EBDD;border-radius:12px;">
     <div style="color:#294A1D;font-size:13px;font-weight:800;margin-bottom:4px;">
         Publish My Recipes
@@ -7222,7 +7291,35 @@ function openMyCruncher() {
                     const portionOptions = ["plate","bowl","serving"].map(option=>`<option value="${option}" ${(String(portion).toLowerCase()==="bowl/plate"?"plate":String(portion).toLowerCase())===option?'selected':''}>${option}</option>`).join("");
                     const editor = draft ? `<div class="my-recipe-editor" onclick="event.stopPropagation()" style="margin-top:14px;padding-top:14px;border-top:1px solid #D9E1D1;">
                         <h4 style="margin:0 0 6px;color:#294A1D;">Customize recipe</h4><p style="margin:0 0 10px;color:#687064;font-size:12px;line-height:1.45;">Choose a serving size, then set how many you eat (for example, 3 crackers). Carb estimates update for the batch and each plate.</p>
-                        <label style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin-bottom:4px;">Recipe name</label><input value="${escapeHTML(draft.name)}" oninput="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','name',this.value)" style="box-sizing:border-box;width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;margin-bottom:10px;"><label style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:0 0 4px;">Meal category</label><select onchange="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','category',this.value)" style="width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;margin-bottom:10px;">${recipeCategoryOptions(category)}</select>
+                       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,0.7fr);gap:10px;margin-bottom:10px;">
+
+    <div>
+
+        <label style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin-bottom:4px;">
+            Recipe name
+        </label>
+
+        <input
+            value="${escapeHTML(draft.name)}"
+            oninput="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','name',this.value)"
+            style="box-sizing:border-box;width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"
+        >
+    </div>
+
+    <div>
+        <label style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin-bottom:4px;">
+            Meal category
+        </label>
+
+        <select
+            onchange="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','category',this.value)"
+            style="box-sizing:border-box;width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;background:white;font:inherit;"
+        >
+            ${recipeCategoryOptions(category)}
+        </select>
+    </div>
+
+</div>
                    ${ingredients.length ? ingredients.map((item,ingredientIndex)=>{
     if (item.custom === true) {
         return `<div style="margin:8px 0;padding:10px;background:#F4EEDB;border:1px solid #D9E1D1;border-radius:10px;">
@@ -7241,17 +7338,26 @@ function openMyCruncher() {
                 >×</button>
             </div>
 
-            <label style="display:flex;align-items:center;gap:7px;margin:8px 0 0;color:#294A1D;font-size:12px;font-weight:800;">
-                Quantity
-                <input
-                    type="number"
-                    min="0.25"
-                    step="0.25"
-                    value="${Number(item.quantity)||1}"
-                    onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'quantity',this.value)"
-                    style="width:72px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;font:inherit;"
-                >
-            </label>
+           <div style="display:flex;align-items:center;gap:6px;margin:0 0 10px 0;">
+
+    <label
+        style="color:#294A1D;font-size:12px;font-weight:800;white-space:nowrap;"
+        for="saved-recipe-quantity-${escapeQuotes(id)}-${ingredientIndex}"
+    >
+        Qty
+    </label>
+
+    <input
+        id="saved-recipe-quantity-${escapeQuotes(id)}-${ingredientIndex}"
+        type="number"
+        min="0.25"
+        step="0.25"
+        value="${Number(item.quantity)||1}"
+        onchange="updateSavedRecipeDraftIngredient('${escapeQuotes(id)}',${ingredientIndex},'quantity',this.value)"
+        style="width:58px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;font:inherit;text-align:center;"
+    >
+
+</div>
         </div>`;
     }
 
@@ -7299,10 +7405,31 @@ function openMyCruncher() {
         >
         by weight
     </label>`:""}`;
-}).join("") : `<p style="color:#687064;">No ingredients yet.</p>`}
+}).join("") : g`<p style="color:#687064;">No ingredients yet.</p>`}
                         <label for="saved-recipe-add-${escapeQuotes(id)}" style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:12px 0 5px;">Search foods to add</label><div style="display:flex;gap:7px;"><input id="saved-recipe-add-${escapeQuotes(id)}" type="search" list="saved-recipe-options-${escapeQuotes(id)}" oninput="this.setCustomValidity('')" placeholder="Start typing a food" style="flex:1;min-width:0;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><datalist id="saved-recipe-options-${escapeQuotes(id)}">${foods.map(food=>`<option value="${escapeHTML(food.name)}"></option>`).join("")}</datalist><button onclick="addSavedRecipeIngredient('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 10px;font-weight:800;">Add</button></div>
-                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;"><label style="color:#294A1D;font-size:12px;font-weight:800;">Batch makes about</label><input type="number" min="1" step="1" value="${servings}" oninput="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','servings',this.value)" style="width:62px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;"><select onchange="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','portion',this.value)" style="padding:7px;border:1px solid #C8D3C0;border-radius:8px;background:white;">${portionOptions}</select></div>
-                        <div style="margin-top:12px;padding:12px;background:#F4EEDB;border:1px solid #D9E1D1;border-radius:12px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;background:#F4EEDB;border-radius:10px;">
+
+    <label style="color:#294A1D;font-size:12px;font-weight:800;white-space:nowrap;">
+        Batch makes
+    </label>
+
+    <input
+        type="number"
+        min="1"
+        step="1"
+        value="${servings}"
+        oninput="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','servings',this.value)"
+        style="width:54px;padding:7px;border:1px solid #C8D3C0;border-radius:8px;text-align:center;"
+    >
+
+    <select
+        onchange="updateSavedRecipeDraftMeta('${escapeQuotes(id)}','portion',this.value)"
+        style="padding:7px;border:1px solid #C8D3C0;border-radius:8px;background:white;"
+    >
+        ${portionOptions}
+    </select>
+
+</div>
     <div style="color:#294A1D;font-size:12px;font-weight:800;margin-bottom:8px;">+ Add custom ingredient</div>
 
     <input
@@ -7310,7 +7437,7 @@ function openMyCruncher() {
         type="text"
         placeholder="Ingredient name"
         oninput="this.setCustomValidity('')"
-        style="box-sizing:border-box;width:100%;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;margin-bottom:7px;"
+        style="box-sizing:border-box;width:100%;paddin:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;margin-bottom:7px;"
     >
 
     <div style="display:flex;gap:7px;flex-wrap:wrap;">
