@@ -2274,7 +2274,20 @@ function goHome() {
         "";
 
 
-    setActiveNav(0);
+        setActiveNav(0);
+
+    const homeSearch = document.getElementById("homeFoodSearch");
+
+    if (homeSearch) {
+        homeSearch.value = "";
+    }
+
+    const homeResults = document.getElementById("homeFoodResults");
+
+    if (homeResults) {
+        homeResults.innerHTML = "";
+    }
+
 
 }
 
@@ -4581,19 +4594,21 @@ window.openCookAsYouGo = function() {
         `
     );
 
-    const search = document.getElementById("foodSearch");
+ const search = document.getElementById("foodSearch");
 
-    if (search) {
-        search.addEventListener("input", function () {
-            renderFoodResultsForCook(this.value);
-        });
-    }
+if (search) {
+    search.value = "";
 
-    renderFoodResultsForCook("");
+    search.oninput = function () {
+        renderFoodResultsForCook(this.value);
+    };
+}
+
+renderFoodResultsForCook("");
 
 };
-document.addEventListener("click", function(event) {
 
+document.addEventListener("click", function(event) {
     const card = event.target.closest(".card-primary");
 
     if (!card) return;
@@ -4711,7 +4726,6 @@ if (!matches.length) {
 /* =========================================================
    ADD FOOD TO COOK AS YOU GO
 ========================================================= */
-
 function addFoodToCook(name) {
 
     const food = foods.find(item => item.name === name);
@@ -4730,75 +4744,81 @@ function addFoodToCook(name) {
 
     renderCookAsYouGoIngredients();
 
-window.removeCookIngredient = function(index) {
+    window.removeCookIngredient = function(index) {
 
-    cookAsYouGoIngredients.splice(index, 1);
+        cookAsYouGoIngredients.splice(index, 1);
 
-    renderCookAsYouGoIngredients();
+        renderCookAsYouGoIngredients();
 
-};
+    };
 
-function setCookServing(index, servingIndex) {
+    function setCookServing(index, servingIndex) {
 
-    const ingredient =
-        cookAsYouGoIngredients[index];
+        const ingredient =
+            cookAsYouGoIngredients[index];
 
-    if (!ingredient) return;
+        if (!ingredient) return;
 
-    const food =
-        foods.find(
-            food => food.name === ingredient.name
-        );
+        const food =
+            foods.find(
+                food => food.name === ingredient.name
+            );
 
-    if (!food) return;
+        if (!food) return;
 
-    const servings =
-        getFoodServings(food);
+        const servings =
+            getFoodServings(food);
 
-    const serving =
-        servings[Number(servingIndex)];
+        const serving =
+            servings[Number(servingIndex)];
 
-    if (!serving) return;
+        if (!serving) return;
 
-    ingredient.servingLabel =
-        serving.label;
+        ingredient.servingLabel =
+            serving.label;
 
-    ingredient.carbsPerServing =
-        Number(serving.carbs) || 0;
+        ingredient.carbsPerServing =
+            Number(serving.carbs) || 0;
 
-    renderCookAsYouGoIngredients();
+        renderCookAsYouGoIngredients();
 
-}
-window.setCookQuantity = function(index, value) {
+    }
 
-    const ingredient =
-        cookAsYouGoIngredients[index];
+    window.setCookQuantity = function(index, value) {
 
-    if (!ingredient) return;
+        const ingredient =
+            cookAsYouGoIngredients[index];
 
-    ingredient.quantity =
-        Number(value) || 1;
+        if (!ingredient) return;
 
-    renderCookAsYouGoIngredients();
+        ingredient.quantity =
+            Number(value) || 1;
 
-}
+        renderCookAsYouGoIngredients();
+
+    }
+
     const search = document.getElementById("foodSearch");
 
-if (search) {
-    search.addEventListener("input", function () {
-        renderFoodResultsForCook(this.value);
-    });
-    
+    if (search) {
+        search.addEventListener("input", function () {
+            renderFoodResultsForCook(this.value);
+        });
 
-renderFoodResultsForCook("");
-}
+        renderFoodResultsForCook("");
+    }
 }
 /* =========================================================
    RENDER COOK AS YOU GO INGREDIENTS
 ========================================================= */
 
 function renderCookAsYouGoIngredients() {
+    const cookSearch = document.getElementById("foodSearch");
 
+    if (cookSearch) {
+        cookSearch.value = "";
+        renderFoodResultsForCook("");
+    }
     const container =
         document.getElementById("cookAsYouGoList");
 
@@ -6638,18 +6658,45 @@ function removeSavedRecipeIngredient(id, ingredientIndex) {
     openMyCruncher();
 }
 function addSavedRecipeIngredient(id) {
+
     const input = document.getElementById(`saved-recipe-add-${id}`);
+
     const name = String(input?.value || "").trim().toLowerCase();
+
     const food = foods.find(entry => entry.name.toLowerCase() === name);
+
     if (!food) {
-        if (input) { input.setCustomValidity("Choose a food from the suggestions."); input.reportValidity(); }
+
+        if (input) {
+            input.setCustomValidity("Choose a food from the suggestions.");
+            input.reportValidity();
+        }
+
         return;
+
     }
+
     const draft = getSavedRecipeDraft(id);
+
     const servings = getFoodServings(food);
+
     const serving = servings.find(item => /1\/4 lb package/i.test(item.label)) || servings[0];
-    draft.ingredients.push({food:food.name,label:serving.label,quantity:1,isDrink:food.category === "Drinks"});
+
+    draft.ingredients.push({
+        food: food.name,
+        label: serving.label,
+        quantity: 1,
+        isDrink: food.category === "Drinks"
+    });
+
     openMyCruncher();
+
+    const refreshedInput =
+        document.getElementById(`saved-recipe-add-${id}`);
+
+    if (refreshedInput) {
+        refreshedInput.value = "";
+    }
 }
 function addCustomSavedRecipeIngredient(id) {
     const nameInput = document.getElementById(`saved-recipe-custom-name-${id}`);
@@ -6691,6 +6738,7 @@ function addCustomSavedRecipeIngredient(id) {
 
     openMyCruncher();
 }
+
 function commitSavedRecipeDraft(id, asNew) {
     const key = String(id);
     const original = savedRecipes.find(item => String(item.id) === key);
@@ -7406,7 +7454,7 @@ function openMyCruncher() {
         by weight
     </label>`:""}`;
 }).join("") : g`<p style="color:#687064;">No ingredients yet.</p>`}
-                        <label for="saved-recipe-add-${escapeQuotes(id)}" style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:12px 0 5px;">Search foods to add</label><div style="display:flex;gap:7px;"><input id="saved-recipe-add-${escapeQuotes(id)}" type="search" list="saved-recipe-options-${escapeQuotes(id)}" oninput="this.setCustomValidity('')" placeholder="Start typing a food" style="flex:1;min-width:0;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><datalist id="saved-recipe-options-${escapeQuotes(id)}">${foods.map(food=>`<option value="${escapeHTML(food.name)}"></option>`).join("")}</datalist><button onclick="addSavedRecipeIngredient('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 10px;font-weight:800;">Add</button></div>
+                        <label for="saved-recipe-add-${escapeQuotes(id)}" style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:12px 0 5px;">Search foods to add</label><div style="display:flex;gap:7px;"><input id="saved-recipe-add-${escapeQuotes(id)}" type="search" value="" list="saved-recipe-options-${escapeQuotes(id)}" oninput="this.setCustomValidity('')" placeholder="Start typing a food" style="flex:1;min-width:0;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><datalist id="saved-recipe-options-${escapeQuotes(id)}">${foods.map(food=>`<option value="${escapeHTML(food.name)}"></option>`).join("")}</datalist><button onclick="addSavedRecipeIngredient('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 10px;font-weight:800;">Add</button></div>
                         <div style="display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;background:#F4EEDB;border-radius:10px;">
 
     <label style="color:#294A1D;font-size:12px;font-weight:800;white-space:nowrap;">
