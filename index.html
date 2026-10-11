@@ -3251,6 +3251,54 @@ function getFoodServings(food) {
                 }];
 
 
+    // Automatically add common cup measurements when a
+    // tablespoon serving is available.
+    const tablespoonServing = servings.find(serving =>
+        /\b(?:1\s*)?(?:tablespoon|tbsp)\b/i.test(
+            String(serving.label || "")
+        ) &&
+        !/\b(?:teaspoon|tsp)\b/i.test(
+            String(serving.label || "")
+        )
+    );
+
+    if (tablespoonServing) {
+        const tablespoonCarbs = Number(tablespoonServing.carbs);
+
+        const cupOptions = [
+            { label: "1/4 cup", tablespoons: 4 },
+            { label: "1/3 cup", tablespoons: 16 / 3 },
+            { label: "1/2 cup", tablespoons: 8 },
+            { label: "1 cup", tablespoons: 16 }
+        ];
+
+        for (const option of cupOptions) {
+            const labelPatterns = {
+                "1/4 cup": /\b(?:1\/4|¼|0\.25)\s*cup\b/i,
+                "1/3 cup": /\b(?:1\/3|⅓)\s*cup\b/i,
+                "1/2 cup": /\b(?:1\/2|½|0\.5)\s*cup\b/i,
+                "1 cup": /\b1\s*cup\b/i
+            };
+
+            const alreadyExists = servings.some(serving =>
+                labelPatterns[option.label].test(
+                    String(serving.label || "")
+                )
+            );
+
+            if (!alreadyExists && Number.isFinite(tablespoonCarbs)) {
+                servings.push({
+                    label: option.label,
+                    amount: Number(tablespoonServing.amount || 1) *
+                        option.tablespoons,
+                    carbs: Number(
+                        (tablespoonCarbs * option.tablespoons).toFixed(1)
+                    )
+                });
+            }
+        }
+    }
+
     const alreadyHasWeightOption =
         servings.some(
             serving =>
@@ -7454,7 +7502,9 @@ function openMyCruncher() {
         by weight
     </label>`:""}`;
 }).join("") : g`<p style="color:#687064;">No ingredients yet.</p>`}
-                        <label for="saved-recipe-add-${escapeQuotes(id)}" style="display:block;color:#294A1D;font-size:12px;font-weight:800;margin:12px 0 5px;">Search foods to add</label><div style="display:flex;gap:7px;"><input id="saved-recipe-add-${escapeQuotes(id)}" type="search" value="" list="saved-recipe-options-${escapeQuotes(id)}" oninput="this.setCustomValidity('')" placeholder="Start typing a food" style="flex:1;min-width:0;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"><datalist id="saved-recipe-options-${escapeQuotes(id)}">${foods.map(food=>`<option value="${escapeHTML(food.name)}"></option>`).join("")}</datalist><button onclick="addSavedRecipeIngredient('${escapeQuotes(id)}')" style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 10px;font-weight:800;">Add</button></div>
+                        
+
+
                         <div style="display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;background:#F4EEDB;border-radius:10px;">
 
     <label style="color:#294A1D;font-size:12px;font-weight:800;white-space:nowrap;">
@@ -7478,7 +7528,12 @@ function openMyCruncher() {
     </select>
 
 </div>
-    <div style="color:#294A1D;font-size:12px;font-weight:800;margin-bottom:8px;">+ Add custom ingredient</div>
+
+
+   <details style="margin-bottom:10px;">
+    <summary style="color:#294A1D;font-size:12px;font-weight:800;cursor:pointer;padding:6px 0;">
+        + Add custom ingredient
+    </summary>
 
     <input
         id="saved-recipe-custom-name-${escapeQuotes(id)}"
@@ -7519,6 +7574,7 @@ function openMyCruncher() {
     <div style="color:#687064;font-size:11px;margin-top:6px;">
         Use the serving size and carbs listed on your package or recipe.
     </div>
+    </details>
 </div>
 
 <label
