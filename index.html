@@ -7281,6 +7281,85 @@ function saveMealTarget(mealName, value) {
     localStorage.setItem("carbCruncherMealTargets", JSON.stringify(mealTargets));
     openSettings();
 }
+
+function importMyRecipesFile(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function () {
+        try {
+            const data = JSON.parse(reader.result);
+            const importedRecipes = Array.isArray(data)
+                ? data
+                : data.recipes;
+
+            if (!Array.isArray(importedRecipes)) {
+                alert("This file does not contain a valid recipe list.");
+                return;
+            }
+
+            const existingIds = new Set(
+                savedRecipes
+                    .filter(recipe => recipe.id != null)
+                    .map(recipe => String(recipe.id))
+            );
+
+            let added = 0;
+            let skipped = 0;
+
+            importedRecipes.forEach(recipe => {
+                if (!recipe || !recipe.name) {
+                    skipped++;
+                    return;
+                }
+
+                if (
+                    recipe.id != null &&
+                    existingIds.has(String(recipe.id))
+                ) {
+                    skipped++;
+                    return;
+                }
+
+                savedRecipes.push({
+                    ...recipe,
+                    ingredients: Array.isArray(recipe.ingredients)
+                        ? recipe.ingredients.map(item => ({ ...item }))
+                        : []
+                });
+
+                if (recipe.id != null) {
+                    existingIds.add(String(recipe.id));
+                }
+
+                added++;
+            });
+
+            localStorage.setItem(
+                "carbCruncherRecipes",
+                JSON.stringify(savedRecipes)
+            );
+
+            alert(
+                "Recipe import complete!\n\n" +
+                "Added: " + added + "\n" +
+                "Skipped: " + skipped + "\n" +
+                "Total saved recipes: " + savedRecipes.length
+            );
+
+            openMyCruncher();
+
+        } catch (error) {
+            alert("Could not read this recipe file. Please check the JSON file and try again.");
+        }
+    };
+
+    reader.readAsText(file);
+    input.value = "";
+}
+
 function exportMyRecipes() {
     if (!savedRecipes.length) {
         alert("You don't have any saved recipes to export yet.");
@@ -7369,8 +7448,29 @@ function openMyCruncher() {
         ${savedRecipes.length ? "" : "disabled"}
         style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer;"
     >
+       
         Export My Recipes
     </button>
+
+    <div style="margin-top:10px;">
+        <label
+            for="importMyRecipesFile"
+            style="display:inline-block;border:2px solid #3F6F2A;background:#FFFDF7;color:#294A1D;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer;"
+        >
+            Import My Recipes
+        </label>
+        <input
+            id="importMyRecipesFile"
+            type="file"
+            accept=".json,application/json"
+            onchange="importMyRecipesFile(this)"
+            style="display:none;"
+        >
+        <div style="color:#687064;font-size:11px;margin-top:6px;">
+            Add recipes from a previously exported JSON backup.
+        </div>
+    </div>
+
 </div><div class="my-recipe-grid">
                 ${savedRecipes.length ? savedRecipes.filter(recipe=>{
                     const category=recipe.category || (Number.isInteger(recipe.autoIdeaIndex) ? mealIdeas[recipe.autoIdeaIndex]?.category : "Dinner") || "Dinner";
@@ -7528,6 +7628,46 @@ function openMyCruncher() {
     </select>
 
 </div>
+
+<details style="margin-bottom:10px;">
+    <summary style="color:#294A1D;font-size:12px;font-weight:800;cursor:pointer;padding:6px 0;">
+        + Add foods from database
+    </summary>
+
+    <label
+        for="saved-recipe-add-${escapeQuotes(id)}"
+        style="display:block;color:#294A1D;font-size:12px;font-weight:700;margin:6px 0;"
+    >
+        Search existing foods
+    </label>
+
+    <div style="display:flex;gap:7px;">
+        <input
+            id="saved-recipe-add-${escapeQuotes(id)}"
+            type="search"
+            list="saved-recipe-options-${escapeQuotes(id)}"
+            placeholder="Start typing a food"
+            oninput="this.setCustomValidity('')"
+            style="flex:1;min-width:0;padding:9px;border:1px solid #C8D3C0;border-radius:9px;font:inherit;"
+        >
+
+        <datalist id="saved-recipe-options-${escapeQuotes(id)}">
+            ${foods.map(food=>`<option value="${escapeHTML(food.name)}"></option>`).join("")}
+        </datalist>
+
+        <button
+            type="button"
+            onclick="addSavedRecipeIngredient('${escapeQuotes(id)}')"
+            style="border:0;background:#3F6F2A;color:white;border-radius:9px;padding:8px 10px;font-weight:800;"
+        >
+            Add
+        </button>
+    </div>
+
+    <p style="margin:6px 0;color:#687064;font-size:11px;">
+        Choose a food from the suggestions, then adjust its serving and quantity.
+    </p>
+</details>
 
 
    <details style="margin-bottom:10px;">
